@@ -11,6 +11,7 @@ class BookController extends GetxController {
   var errorMessage = ''.obs;
   var currentQuery = 'Flutter'.obs;
   var selectedCategoryIndex = 0.obs;
+  final Map<String, List<BookModel>> _cache = {};
 
   @override
   void onInit() {
@@ -28,6 +29,13 @@ class BookController extends GetxController {
     errorMessage.value = '';
     currentQuery.value = query;
 
+    if (_cache.containsKey(query)) {
+      log('⚡ Cache hit for: $query');
+      books.value = _cache[query]!;
+      isLoading.value = false;
+      return;
+    }
+
     try {
       log('🔄 Searching for: $query');
 
@@ -38,7 +46,9 @@ class BookController extends GetxController {
         books.clear();
         errorMessage.value = 'No books found for "$query"';
       } else {
-        books.value = results.map((json) => BookModel.fromJson(json)).toList();
+        final bookList = results.map((json) => BookModel.fromJson(json)).toList();
+        books.value = bookList;
+        _cache[query] = bookList;
         log('✅ Successfully loaded ${books.length} books');
       }
     } catch (e) {
