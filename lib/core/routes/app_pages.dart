@@ -14,30 +14,26 @@ class AppPages {
   static final pages = <GetPage>[
     GetPage(
       name: Routes.splash,
-      page: () => SplashView(),
+      page: () => const SplashView(),
       binding: SplashBinding(),
     ),
-    GetPage(
-      name: Routes.welcome,
-      page: () => const WelcomePage(),
-    ),
+    GetPage(name: Routes.welcome, page: () => const WelcomePage()),
     GetPage(
       name: Routes.home,
-      page: () => ModernBottomNavBar(),
+      page: () => const ModernBottomNavBar(),
       binding: BindingsBuilder(() {
         Get.put(NavController());
       }),
     ),
     GetPage(
       name: Routes.login,
-      page: () => LoginView(),
+      page: () => const LoginView(),
       binding: LoginBinding(),
     ),
     GetPage(
       name: Routes.register,
-      page: () => RegisterView(),
+      page: () => const RegisterView(),
       binding: RegisterBinding(),
     ),
-    
   ];
 }

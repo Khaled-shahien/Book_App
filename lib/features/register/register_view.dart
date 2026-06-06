@@ -17,7 +17,7 @@ class RegisterView extends GetView<RegisterController> {
         backgroundColor: Colors.transparent,
         centerTitle: true,
         title: const Text(
-          "Register",
+          'Register',
           style: TextStyle(
             color: Colors.black,
             fontSize: 32,
@@ -41,7 +41,7 @@ class RegisterView extends GetView<RegisterController> {
                       const SizedBox(height: 30),
 
                       const Text(
-                        "Please fill your details to signup.",
+                        'Please fill your details to signup.',
                         style: TextStyle(
                           fontSize: 16,
                           color: Color(0xFF252525),
@@ -52,7 +52,7 @@ class RegisterView extends GetView<RegisterController> {
 
                       CustomTextForm(
                         controller: controller.userController,
-                        labelText: "Username",
+                        labelText: 'Username',
                         icon: Icons.verified_user_outlined,
                         validator: (value) {
                           if (value?.isEmpty ?? true) {
@@ -66,7 +66,7 @@ class RegisterView extends GetView<RegisterController> {
 
                       CustomTextForm(
                         controller: controller.emailController,
-                        labelText: "Email",
+                        labelText: 'Email',
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
@@ -84,7 +84,7 @@ class RegisterView extends GetView<RegisterController> {
 
                       CustomTextForm(
                         controller: controller.passwordController,
-                        labelText: "Password",
+                        labelText: 'Password',
                         icon: Icons.lock,
                         isPassword: true,
                         validator: (value) {
@@ -102,7 +102,7 @@ class RegisterView extends GetView<RegisterController> {
 
                       CustomTextForm(
                         controller: controller.confirmPasswordController,
-                        labelText: "Confirm Password",
+                        labelText: 'Confirm Password',
                         icon: Icons.lock,
                         isPassword: true,
                         validator: (value) {
@@ -121,8 +121,8 @@ class RegisterView extends GetView<RegisterController> {
                       Obx(
                         () => CustomLoginButton(
                           text: controller.isLoading.value
-                              ? "Loading..."
-                              : "Sign Up",
+                              ? 'Loading...'
+                              : 'Sign Up',
                           onPressed: controller.isLoading.value
                               ? null
                               : controller.register,
@@ -137,7 +137,7 @@ class RegisterView extends GetView<RegisterController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Already a member? ",
+                    'Already a member? ',
                     style: TextStyle(fontSize: 14),
                   ),
                   GestureDetector(
@@ -146,7 +146,7 @@ class RegisterView extends GetView<RegisterController> {
                       Get.off(() => const LoginView(), binding: LoginBinding());
                     },
                     child: const Text(
-                      "Sign In",
+                      'Sign In',
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),

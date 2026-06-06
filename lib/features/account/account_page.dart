@@ -1,9 +1,7 @@
-import 'dart:developer';
-
 import 'package:book_app/core/controllers/nav_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AccountPage extends StatefulWidget {
@@ -36,21 +34,17 @@ class _AccountPageState extends State<AccountPage> {
 
     if (currentUser != null) {
       try {
-        final userDoc = await _firestore
+        final DocumentSnapshot userDoc = await _firestore
             .collection('users')
             .doc(currentUser!.uid)
             .get();
 
         if (userDoc.exists) {
-          userData = userDoc.data();
+          userData = userDoc.data() as Map<String, dynamic>?;
         }
       } catch (e) {
-        log('Error loading user data', error: e);
+        print('Error loading user data: $e');
       }
-    }
-
-    if (!mounted) {
-      return;
     }
 
     setState(() {
@@ -74,9 +68,8 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   String _getDisplayName() {
-    final name = userData?['name'];
-    if (name is String && name.isNotEmpty) {
-      return name;
+    if (userData?['name'] != null && userData!['name'].toString().isNotEmpty) {
+      return userData!['name'].toString();
     }
     if (currentUser?.displayName != null &&
         currentUser!.displayName!.isNotEmpty) {
@@ -89,9 +82,13 @@ class _AccountPageState extends State<AccountPage> {
     return currentUser?.email ?? 'No email';
   }
 
-  String _getUserDataText(String key, {String fallback = '0'}) {
-    final value = userData?[key];
-    return value?.toString() ?? fallback;
+  String _getInitials() {
+    final String name = _getDisplayName();
+    final List<String> nameParts = name.split(' ');
+    if (nameParts.length >= 2) {
+      return '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
+    }
+    return name[0].toUpperCase();
   }
 
   @override
@@ -104,6 +101,7 @@ class _AccountPageState extends State<AccountPage> {
       backgroundColor: Colors.grey[100],
       body: CustomScrollView(
         slivers: [
+          // App Bar مع صورة البروفايل
           SliverAppBar(
             expandedHeight: 280,
             floating: false,
@@ -187,23 +185,28 @@ class _AccountPageState extends State<AccountPage> {
             ),
           ),
 
+          // المحتوى
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
+                  // معلومات المستخدم
                   _buildInfoCard(),
 
                   const SizedBox(height: 20),
 
+                  // قائمة الإعدادات
                   _buildSettingsSection(context),
 
                   const SizedBox(height: 20),
 
+                  // الإحصائيات
                   _buildStatsSection(),
 
                   const SizedBox(height: 20),
 
+                  // زر تسجيل الخروج
                   _buildLogoutButton(context),
 
                   const SizedBox(height: 100),
@@ -408,21 +411,21 @@ class _AccountPageState extends State<AccountPage> {
         children: [
           _buildStatItem(
             icon: Icons.shopping_bag_outlined,
-            value: _getUserDataText('ordersCount'),
+            value: userData?['ordersCount']?.toString() ?? '0',
             label: 'Orders',
             color: Colors.blue,
           ),
           Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.favorite_outline,
-            value: _getUserDataText('favoritesCount'),
+            value: userData?['favoritesCount']?.toString() ?? '0',
             label: 'Favorites',
             color: Colors.red,
           ),
           Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.star_outline,
-            value: _getUserDataText('reviewsCount'),
+            value: userData?['reviewsCount']?.toString() ?? '0',
             label: 'Reviews',
             color: Colors.amber,
           ),

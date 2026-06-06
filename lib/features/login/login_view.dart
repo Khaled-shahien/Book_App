@@ -18,7 +18,7 @@ class LoginView extends GetView<LoginController> {
         backgroundColor: Colors.transparent,
         centerTitle: true,
         title: const Text(
-          "Get Started",
+          'Get Started',
           style: TextStyle(
             color: Colors.black,
             fontSize: 32,
@@ -42,7 +42,7 @@ class LoginView extends GetView<LoginController> {
                       const SizedBox(height: 20),
 
                       const Text(
-                        "Please fill your details to login.",
+                        'Please fill your details to login.',
                         style: TextStyle(
                           fontSize: 16,
                           color: Color(0xFF252525),
@@ -53,7 +53,7 @@ class LoginView extends GetView<LoginController> {
 
                       CustomTextForm(
                         controller: controller.emailController,
-                        labelText: "Email",
+                        labelText: 'Email',
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
@@ -71,7 +71,7 @@ class LoginView extends GetView<LoginController> {
 
                       CustomTextForm(
                         controller: controller.passwordController,
-                        labelText: "Password",
+                        labelText: 'Password',
                         icon: Icons.lock,
                         isPassword: true,
                         validator: (value) {
@@ -90,8 +90,8 @@ class LoginView extends GetView<LoginController> {
                       Obx(
                         () => CustomLoginButton(
                           text: controller.isLoading.value
-                              ? "Loading..."
-                              : "Login",
+                              ? 'Loading...'
+                              : 'Login',
                           onPressed: controller.isLoading.value
                               ? null
                               : controller.login,
@@ -103,7 +103,7 @@ class LoginView extends GetView<LoginController> {
                       TextButton(
                         onPressed: controller.goToForgotPassword,
                         child: const Text(
-                          "Forgot Password?",
+                          'Forgot Password?',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -126,12 +126,12 @@ class LoginView extends GetView<LoginController> {
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       Get.off(
-                    () => const RegisterView(),
-                    binding: RegisterBinding(),
-                  );
+                        () => const RegisterView(),
+                        binding: RegisterBinding(),
+                      );
                     },
                     child: const Text(
-                      "Register",
+                      'Register',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,

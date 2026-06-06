@@ -156,7 +156,7 @@ class _CartPageState extends State<CartPage>
             gradient: LinearGradient(
               colors: [
                 const Color(0xFF6C63FF),
-                const Color(0xFF8B7FFF).withOpacity(0.9),
+                const Color(0xFF8B7FFF).withValues(alpha: 0.9),
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -171,7 +171,7 @@ class _CartPageState extends State<CartPage>
                   width: 150,
                   height: 150,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -195,7 +195,7 @@ class _CartPageState extends State<CartPage>
                       Text(
                         '$itemCount ${itemCount == 1 ? 'item' : 'items'}',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.9),
+                          color: Colors.white.withValues(alpha: 0.9),
                           fontSize: 16,
                         ),
                       ),
@@ -218,13 +218,13 @@ class _CartPageState extends State<CartPage>
           Container(
             padding: const EdgeInsets.all(40),
             decoration: BoxDecoration(
-              color: const Color(0xFF6C63FF).withOpacity(0.1),
+              color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               Icons.shopping_cart_outlined,
               size: 100,
-              color: const Color(0xFF6C63FF).withOpacity(0.5),
+              color: const Color(0xFF6C63FF).withValues(alpha: 0.5),
             ),
           ),
           const SizedBox(height: 24),
@@ -292,13 +292,13 @@ class _CartPageState extends State<CartPage>
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              const Color(0xFF6C63FF).withOpacity(0.1),
-              const Color(0xFF8B7FFF).withOpacity(0.1),
+              const Color(0xFF6C63FF).withValues(alpha: 0.1),
+              const Color(0xFF8B7FFF).withValues(alpha: 0.1),
             ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: const Color(0xFF6C63FF).withOpacity(0.3),
+            color: const Color(0xFF6C63FF).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -312,7 +312,7 @@ class _CartPageState extends State<CartPage>
             const SizedBox(height: 12),
             _buildSummaryRow('Paid Books', '$paidCount', Icons.payments),
             const SizedBox(height: 12),
-            Divider(color: const Color(0xFF6C63FF).withOpacity(0.3)),
+            Divider(color: const Color(0xFF6C63FF).withValues(alpha: 0.3)),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -384,7 +384,7 @@ class _CartPageState extends State<CartPage>
             borderRadius: BorderRadius.circular(16),
           ),
           elevation: 8,
-          shadowColor: const Color(0xFF6C63FF).withOpacity(0.5),
+          shadowColor: const Color(0xFF6C63FF).withValues(alpha: 0.5),
         ),
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -417,7 +417,7 @@ class _CartItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -463,7 +463,7 @@ class _CartItemCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -487,8 +487,8 @@ class _CartItemCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6C63FF).withOpacity(0.3),
-            const Color(0xFF8B7FFF).withOpacity(0.3),
+            const Color(0xFF6C63FF).withValues(alpha: 0.3),
+            const Color(0xFF8B7FFF).withValues(alpha: 0.3),
           ],
         ),
       ),

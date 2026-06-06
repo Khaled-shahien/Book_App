@@ -44,7 +44,7 @@ class HomeAppBar extends StatelessWidget {
             Text(
               'Hello Reader 👋',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -63,10 +63,14 @@ class HomeAppBar extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
+          child: const Icon(
+            Icons.notifications_none_rounded,
+            color: Colors.white,
+            size: 26,
+          ),
         ),
       ],
     );
@@ -82,7 +86,7 @@ class HomeAppBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -92,16 +96,24 @@ class HomeAppBar extends StatelessWidget {
           children: [
             Icon(Icons.search_rounded, color: Colors.grey[400], size: 24),
             const SizedBox(width: 12),
-            Text('Search books, authors...', 
-              style: TextStyle(color: Colors.grey[400], fontSize: 15)),
+            Text(
+              'Search books, authors...',
+              style: TextStyle(color: Colors.grey[400], fontSize: 15),
+            ),
             const Spacer(),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF6C63FF), Color(0xFF8B7FFF)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF6C63FF), Color(0xFF8B7FFF)],
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.tune_rounded, color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.tune_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
           ],
         ),

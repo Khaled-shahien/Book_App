@@ -68,7 +68,10 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [widget.categoryColor, widget.categoryColor.withOpacity(0.7)],
+          colors: [
+            widget.categoryColor,
+            widget.categoryColor.withValues(alpha: 0.7),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -82,7 +85,7 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -156,13 +159,13 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
             Container(
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: widget.categoryColor.withOpacity(0.1),
+                color: widget.categoryColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.search_off_rounded,
                 size: 80,
-                color: widget.categoryColor.withOpacity(0.5),
+                color: widget.categoryColor.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 24),
@@ -225,7 +228,7 @@ class BookGridCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -279,7 +282,7 @@ class BookGridCard extends StatelessWidget {
           vertical: isSmall ? 3 : 4,
         ),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.9),
+          color: color.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(

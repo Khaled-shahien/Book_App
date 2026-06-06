@@ -50,7 +50,7 @@ class AppTheme {
           vertical: 16,
         ),
       ),
-      cardTheme: CardThemeData(elevation: 2),
+      cardTheme: const CardThemeData(elevation: 2),
     );
   }
 
@@ -102,7 +102,7 @@ class AppTheme {
           vertical: 16,
         ),
       ),
-      cardTheme: CardThemeData(elevation: 4),
+      cardTheme: const CardThemeData(elevation: 4),
     );
   }
 }

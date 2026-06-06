@@ -157,7 +157,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF6C63FF),
-                    const Color(0xFF8B7FFF).withOpacity(0.9),
+                    const Color(0xFF8B7FFF).withValues(alpha: 0.9),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -171,7 +171,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                 width: 200,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -199,7 +199,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -223,8 +223,8 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6C63FF).withOpacity(0.3),
-            const Color(0xFF8B7FFF).withOpacity(0.3),
+            const Color(0xFF6C63FF).withValues(alpha: 0.3),
+            const Color(0xFF8B7FFF).withValues(alpha: 0.3),
           ],
         ),
       ),
@@ -346,7 +346,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -381,7 +381,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               ),
 
             if (widget.book.ratingsCount > 0) ...[
-              Icon(Icons.rate_review, color: const Color(0xFF6C63FF), size: 22),
+              const Icon(Icons.rate_review, color: Color(0xFF6C63FF), size: 22),
               const SizedBox(width: 8),
               Text(
                 '${widget.book.ratingsCount} Reviews',
@@ -420,7 +420,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -471,7 +471,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -520,7 +520,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                 elevation: 5,
                 shadowColor:
                     (_isInCart ? Colors.red.shade400 : const Color(0xFF6C63FF))
-                        .withOpacity(0.4),
+                        .withValues(alpha: 0.4),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
