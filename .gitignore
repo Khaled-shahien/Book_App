@@ -1,50 +1,98 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+# Flutter & Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+*.dart_snapshot
+pubspec.lock
 
-# IntelliJ related
+# Generated code
+*.g.dart
+*.freezed.dart
+*.gr.dart
+*.mocks.dart
+
+# Firebase (NEVER COMMIT)
+google-services.json
+GoogleService-Info.plist
+firebase_options.dart
+firebase.json
+.firebaserc
+**/google-services.json
+**/GoogleService-Info.plist
+
+# Environment & Secrets (NEVER COMMIT)
+.env
+.env.local
+.env.staging
+.env.production
+.env.*
+*.env
+!.env.example
+secrets.dart
+secrets.json
+
+# Android
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+**/*.keystore
+**/*.jks
+
+# iOS
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**xcuserdata
+**/ios/.generated/
+**/ios/Flutter/App.framework
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*
+Podfile.lock
+
+# macOS
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/Flutter/ephemeral
+
+# IDE & Editors
+.idea/
+.vscode/
 *.iml
 *.ipr
 *.iws
-.idea/
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Design & Scratch Files
+*.excalidraw
+*.figma
+*.sketch
+*.xd
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# Firebase and environment variables
-.env
-
-lib/firebase_options.dart
+# Misc
+*.log
+*.tmp
+*.bak
+*.swp
+coverage/
+lcov.info

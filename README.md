@@ -1,190 +1,145 @@
-# Book App 📚
+<div align="center">
 
-A modern Flutter application for discovering, browsing, and managing books. Built with Clean Architecture principles and Material 3 design guidelines.
+# Book App
 
-## 📱 Screenshots
+A Flutter bookstore app for discovering books, browsing categories, viewing details, and managing a simple cart experience.
 
-<p align="center">
-  <img src="assets/screenshots/welcome.png" width="200" alt="Welcome Screen"/>
-  <img src="assets/screenshots/register.png" width="200" alt="Register Screen"/>
-  <img src="assets/screenshots/login.png" width="200" alt="Login Screen"/>
-  <img src="assets/screenshots/home.png" width="200" alt="Home Screen"/>
-</p>
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![CI](https://github.com/Khaled-shahien/Book_App/actions/workflows/flutter-ci.yml/badge.svg)](https://github.com/Khaled-shahien/Book_App/actions)
 
-<p align="center">
-  <img src="assets/screenshots/categories.png" width="200" alt="Categories Screen"/>
-  <img src="assets/screenshots/cart.png" width="200" alt="Cart Screen"/>
-  <img src="assets/screenshots/book_details.png" width="200" alt="Book_Details Screen"/>
-  <img src="assets/screenshots/profile.png" width="200" alt="Profile Screen"/>
-</p>
+[Download](#download) * [Features](#features) *
+[Architecture](#architecture) * [Getting Started](#getting-started)
 
-## 🌟 Features
+</div>
 
-- **Book Discovery**: Search and browse books from Google Books API
-- **User Authentication**: Secure login and registration with Firebase Auth
-- **Shopping Cart**: Add/remove books and manage your cart
-- **Responsive UI**: Optimized for mobile, tablet, and web
-- **Material 3 Design**: Modern UI with dynamic color theming
-- **Clean Architecture**: Separation of concerns with feature-first structure
-- **State Management**: GetX for efficient state management
+---
 
-## 🛠️ Technologies & Packages
+## About
+Book App is a cross-platform Flutter application for readers who want a clean way to explore books, inspect details, and move through a bookstore-style flow. It integrates Google Books API data with a Firebase-ready app foundation and a feature-first Flutter codebase.
 
-- **Flutter/Dart**: Cross-platform mobile development
-- **GetX**: State management and dependency injection
-- **Firebase Auth**: User authentication
-- **Cloud Firestore**: Data persistence
-- **Dio**: HTTP client for API requests
-- **Google Fonts**: Typography
-- **Material 3**: Modern UI components
+The project is suited for learning or extending a modern Flutter app that uses GetX for routing/state patterns, Dio for HTTP calls, Firebase packages for backend integration, and Material theming for the UI.
 
-## 🏗️ Architecture
+## Features
+| Feature | Description |
+|---------|-------------|
+| Welcome and splash flow | Launch and onboarding entry points for first-run navigation. |
+| Authentication screens | Login and registration views backed by Firebase-ready dependencies. |
+| Book discovery | Fetches book data from the Google Books API using Dio. |
+| Category browsing | Category UI and category-driven book browsing screens. |
+| Book details | Dedicated detail view for selected books. |
+| Cart view | Cart screen for a bookstore-style purchase flow. |
+| Account area | Profile/account page for user-facing settings and identity. |
+| Responsive assets | Image and screenshot assets included for multi-screen documentation and UI polish. |
 
-```
+## Architecture
+The app uses a feature-first Flutter structure. Shared concerns live under `lib/core`, while screens and feature-specific widgets/controllers live under `lib/features`. State and navigation patterns are built around GetX controllers, bindings, and `GetPage` routes.
+
+Project structure:
+
+```text
 lib/
-├── core/                         # Shared logic and cross-cutting concerns
-│   ├── api/                      # HTTP clients and API services
-│   ├── constants/                # App-wide constants & config
-│   ├── errors/                   # Exceptions, failures
-│   ├── helper_function/          # Helper & utility functions
-│   ├── navigation/               # Router / navigation setup
-│   ├── services/                 # Firebase & shared services
-│   ├── theme/                    # Theme, colors, typography
-│   └── widgets/                  # Reusable shared widgets
-└── features/                     # Grouped by feature
-    ├── account/
-    │   ├── data/
-    │   ├── domain/
-    │   └── presentation/
-    │       ├── screens/
-    │       └── widgets/
-    ├── cart/
-    │   ├── data/
-    │   ├── domain/
-    │   └── presentation/
-    │       ├── screens/
-    │       └── widgets/
-    ├── home/
-    │   ├── data/
-    │   ├── domain/
-    │   └── presentation/
-    │       ├── screens/
-    │       └── widgets/
-    └── ...                       # Other features
+|-- main.dart
+|-- core/
+|   |-- api/
+|   |-- constants/
+|   |-- controllers/
+|   |-- errors/
+|   |-- firebase/
+|   |-- helper_function/
+|   |-- models/
+|   |-- navigation/
+|   |-- routes/
+|   |-- services/
+|   |-- theme/
+|   `-- widgets/
+`-- features/
+    |-- account/
+    |-- cart/
+    |-- category/
+    |   `-- widgets/
+    |-- details/
+    |-- home/
+    |   |-- data/
+    |   |   `-- controllers/
+    |   `-- widgets/
+    |-- login/
+    |-- register/
+    |-- splash/
+    `-- welcome/
 ```
 
-## 🔄 App Flow
+## Tech Stack
+| Technology | Usage |
+|------------|-------|
+| Flutter | Cross-platform app framework. |
+| Dart | Application language, SDK constraint `^3.10.4`. |
+| GetX | Routing, bindings, dependency setup, and reactive controllers. |
+| Dio | HTTP client for Google Books API requests. |
+| Firebase Core | Firebase initialization foundation. |
+| Firebase Auth | Authentication dependency for login and registration flows. |
+| Cloud Firestore | Data persistence dependency for Firebase-backed features. |
+| Google Fonts | Custom typography support. |
+| flutter_lints | Static analysis and linting baseline. |
 
-```mermaid
-graph TB
-    A[Welcome Screen] --> B[Login/Signup]
-    B --> C[Home Screen]
-    C --> D[Search Books]
-    D --> E[Book Details]
-    E --> F[Add to Cart]
-    F --> G[Cart Screen]
-    G --> H[Checkout]
-    C --> I[Categories]
-    I --> D
-    A --> J[Splash Screen]
-    J --> A
-```
+## Screenshots
+| Welcome | Home | Book Details |
+|---------|------|--------------|
+| ![](assets/screenshots/welcome.png) | ![](assets/screenshots/home.png) | ![](assets/screenshots/book_details.png) |
 
-## 🎨 UI/UX Design
+| Login | Categories | Cart |
+|-------|------------|------|
+| ![](assets/screenshots/login.png) | ![](assets/screenshots/categories.png) | ![](assets/screenshots/cart.png) |
 
-- **Color Palette**:
-  - Primary: #6C63FF (Purple)
-  - Secondary: #8B7FFF (Light Purple)
-  - Background: #F8F9FE
-  - Surface: #FFFFFF
-
-- **Typography**: Google Fonts Inter
-- **Design Principles**: Material 3 with dynamic color theming
-- **Responsive Layout**: Adapts to different screen sizes
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
-
-- Flutter SDK (latest stable)
-- Dart SDK
-- Firebase project (for authentication)
+- Flutter SDK >= 3.0.0
+- Dart SDK >= 3.0.0
+- A Firebase project if you plan to use authentication or Firestore features
 
 ### Installation
-
 1. Clone the repository:
+
 ```bash
-git clone https://github.com/yourusername/book-app.git
-cd book-app
+git clone https://github.com/Khaled-shahien/Book_App.git
+cd Book_App
 ```
 
 2. Install dependencies:
+
 ```bash
 flutter pub get
 ```
 
-3. Set up Firebase:
-   - Create a Firebase project at https://console.firebase.google.com/
-   - Add your Android/iOS app to the project
-   - Download `google-services.json` (Android) or `GoogleService-Info.plist` (iOS)
-   - Place the file in the appropriate directory
+3. Run the app:
 
-4. Run the app:
 ```bash
 flutter run
 ```
 
-### Configuration
+### Environment Setup
+Copy the example environment file and fill in values only on your local machine:
 
-- Add your Firebase configuration files to the project
-- Update `lib/firebase_options.dart` with your Firebase project settings
-
-## 📁 Project Structure
-
-The project follows Clean Architecture with a feature-first approach:
-
-- **Core Layer**: Shared functionality across the entire app
-- **Feature Layer**: Each feature contains its own data, domain, and presentation layers
-- **Data Layer**: API services, repositories, and models
-- **Domain Layer**: Business logic and entities
-- **Presentation Layer**: UI components and state management
-
-## 🔐 Backend / API / Firebase Integration
-
-- **Authentication**: Firebase Auth for user management
-- **Data Storage**: Cloud Firestore for user data
-- **API**: Google Books API for book data
-
-## 📱 Responsive Design
-
-The app is designed to work on:
-- Mobile devices (iOS & Android)
-- Tablets
-- Web browsers
-- Desktop applications
-
-## 🧪 Testing
-
-To run tests:
 ```bash
-flutter test
+cp .env.example .env
 ```
 
-## 🤝 Contributing
+Firebase configuration files are intentionally ignored and must not be committed. Generate them locally with the FlutterFire CLI when needed:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
 
-## 📄 License
+This can create files such as `android/app/google-services.json`, `GoogleService-Info.plist`, and `lib/firebase_options.dart`; keep them local or provide them through secure CI secrets.
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Download
+[![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](../../releases/latest)
 
-## 🙏 Acknowledgements
+## Contributing
+See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-- Google Books API for book data
-- Firebase for authentication and backend services
-- Flutter Team for the amazing framework
-- Open source community for various packages used in this project
+## License
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
