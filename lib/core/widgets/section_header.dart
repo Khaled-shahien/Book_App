@@ -12,14 +12,12 @@ class SectionHeader extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
         ),
         TextButton(
-          onPressed: () {
-            
-          },
-          child: Text(
-            "See more",
+          onPressed: () {},
+          child: const Text(
+            'See more',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,

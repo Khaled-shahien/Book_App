@@ -61,10 +61,12 @@ class ModernBottomNavBar extends GetView<NavController> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: pages,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: pages,
+        ),
+      ),
       extendBody: true,
       bottomNavigationBar: Container(
         margin: const EdgeInsets.all(20),
@@ -74,7 +76,7 @@ class ModernBottomNavBar extends GetView<NavController> {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 25,
               offset: const Offset(0, 8),
               spreadRadius: 0,
@@ -100,10 +102,7 @@ class ModernBottomNavBar extends GetView<NavController> {
                         children: [
                           // أيقونة مع تأثير انيميشن
                           TweenAnimationBuilder<double>(
-                            tween: Tween(
-                              begin: 0,
-                              end: isSelected ? 1 : 0,
-                            ),
+                            tween: Tween(begin: 0, end: isSelected ? 1 : 0),
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             builder: (context, value, child) {
@@ -113,7 +112,7 @@ class ModernBottomNavBar extends GetView<NavController> {
                                   padding: EdgeInsets.all(8 + (value * 2)),
                                   decoration: BoxDecoration(
                                     color: isSelected
-                                        ? item.color.withOpacity(0.15)
+                                        ? item.color.withValues(alpha: 0.15)
                                         : Colors.transparent,
                                     shape: BoxShape.circle,
                                   ),
@@ -203,33 +202,32 @@ class FloatingBottomNavBar extends GetView<NavController> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: pages,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: pages,
+        ),
+      ),
       extendBody: true,
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         height: 68,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              Colors.grey.shade50,
-            ],
+            colors: [Colors.white, Colors.grey.shade50],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 20,
               offset: const Offset(0, 5),
               spreadRadius: 0,
             ),
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, -2),
               spreadRadius: 0,
@@ -359,10 +357,12 @@ class BubbleBottomNavBar extends GetView<NavController> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: pages,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: pages,
+        ),
+      ),
       bottomNavigationBar: Container(
         height: 70,
         margin: const EdgeInsets.all(16),
@@ -371,7 +371,7 @@ class BubbleBottomNavBar extends GetView<NavController> {
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -399,8 +399,8 @@ class BubbleBottomNavBar extends GetView<NavController> {
                       gradient: isSelected
                           ? LinearGradient(
                               colors: [
-                                item.color.withOpacity(0.3),
-                                item.color.withOpacity(0.1),
+                                item.color.withValues(alpha: 0.3),
+                                item.color.withValues(alpha: 0.1),
                               ],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,

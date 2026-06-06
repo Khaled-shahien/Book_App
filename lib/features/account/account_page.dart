@@ -1,7 +1,9 @@
+import 'dart:developer';
+
 import 'package:book_app/core/controllers/nav_controller.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AccountPage extends StatefulWidget {
@@ -14,7 +16,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   User? currentUser;
   Map<String, dynamic>? userData;
   bool isLoading = true;
@@ -31,20 +33,24 @@ class _AccountPageState extends State<AccountPage> {
     });
 
     currentUser = _auth.currentUser;
-    
+
     if (currentUser != null) {
       try {
-        DocumentSnapshot userDoc = await _firestore
+        final userDoc = await _firestore
             .collection('users')
             .doc(currentUser!.uid)
             .get();
-        
+
         if (userDoc.exists) {
-          userData = userDoc.data() as Map<String, dynamic>?;
+          userData = userDoc.data();
         }
       } catch (e) {
-        print('Error loading user data: $e');
+        log('Error loading user data', error: e);
       }
+    }
+
+    if (!mounted) {
+      return;
     }
 
     setState(() {
@@ -68,10 +74,12 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   String _getDisplayName() {
-    if (userData?['name'] != null && userData!['name'].toString().isNotEmpty) {
-      return userData!['name'];
+    final name = userData?['name'];
+    if (name is String && name.isNotEmpty) {
+      return name;
     }
-    if (currentUser?.displayName != null && currentUser!.displayName!.isNotEmpty) {
+    if (currentUser?.displayName != null &&
+        currentUser!.displayName!.isNotEmpty) {
       return currentUser!.displayName!;
     }
     return 'User';
@@ -81,30 +89,21 @@ class _AccountPageState extends State<AccountPage> {
     return currentUser?.email ?? 'No email';
   }
 
-  String _getInitials() {
-    String name = _getDisplayName();
-    List<String> nameParts = name.split(' ');
-    if (nameParts.length >= 2) {
-      return '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
-    }
-    return name[0].toUpperCase();
+  String _getUserDataText(String key, {String fallback = '0'}) {
+    final value = userData?[key];
+    return value?.toString() ?? fallback;
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
       body: CustomScrollView(
         slivers: [
-          // App Bar مع صورة البروفايل
           SliverAppBar(
             expandedHeight: 280,
             floating: false,
@@ -112,7 +111,7 @@ class _AccountPageState extends State<AccountPage> {
             backgroundColor: Colors.deepPurple,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: (){
+              onPressed: () {
                 Get.find<NavController>().changeIndex(0);
               },
             ),
@@ -120,9 +119,12 @@ class _AccountPageState extends State<AccountPage> {
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
               title: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -163,16 +165,16 @@ class _AccountPageState extends State<AccountPage> {
                             border: Border.all(color: Colors.white, width: 4),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 15,
                                 offset: const Offset(0, 5),
                               ),
                             ],
                           ),
-                          child: CircleAvatar(
+                          child: const CircleAvatar(
                             radius: 55,
                             backgroundColor: Colors.white,
-                            backgroundImage: const NetworkImage(
+                            backgroundImage: NetworkImage(
                               'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
                             ),
                           ),
@@ -185,28 +187,23 @@ class _AccountPageState extends State<AccountPage> {
             ),
           ),
 
-          // المحتوى
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  // معلومات المستخدم
                   _buildInfoCard(),
 
                   const SizedBox(height: 20),
 
-                  // قائمة الإعدادات
                   _buildSettingsSection(context),
 
                   const SizedBox(height: 20),
 
-                  // الإحصائيات
                   _buildStatsSection(),
 
                   const SizedBox(height: 20),
 
-                  // زر تسجيل الخروج
                   _buildLogoutButton(context),
 
                   const SizedBox(height: 100),
@@ -227,7 +224,7 @@ class _AccountPageState extends State<AccountPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -249,7 +246,7 @@ class _AccountPageState extends State<AccountPage> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.deepPurple.withOpacity(0.1),
+            color: Colors.deepPurple.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: Colors.deepPurple, size: 24),
@@ -290,7 +287,7 @@ class _AccountPageState extends State<AccountPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -370,24 +367,18 @@ class _AccountPageState extends State<AccountPage> {
       leading: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: color, size: 24),
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          color: Colors.grey[600],
-          fontSize: 13,
-        ),
+        style: TextStyle(color: Colors.grey[600], fontSize: 13),
       ),
       trailing: Icon(
         Icons.arrow_forward_ios,
@@ -406,7 +397,7 @@ class _AccountPageState extends State<AccountPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -417,29 +408,21 @@ class _AccountPageState extends State<AccountPage> {
         children: [
           _buildStatItem(
             icon: Icons.shopping_bag_outlined,
-            value: userData?['ordersCount']?.toString() ?? '0',
+            value: _getUserDataText('ordersCount'),
             label: 'Orders',
             color: Colors.blue,
           ),
-          Container(
-            height: 60,
-            width: 1,
-            color: Colors.grey[300],
-          ),
+          Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.favorite_outline,
-            value: userData?['favoritesCount']?.toString() ?? '0',
+            value: _getUserDataText('favoritesCount'),
             label: 'Favorites',
             color: Colors.red,
           ),
-          Container(
-            height: 60,
-            width: 1,
-            color: Colors.grey[300],
-          ),
+          Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.star_outline,
-            value: userData?['reviewsCount']?.toString() ?? '0',
+            value: _getUserDataText('reviewsCount'),
             label: 'Reviews',
             color: Colors.amber,
           ),
@@ -459,7 +442,7 @@ class _AccountPageState extends State<AccountPage> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 28),
@@ -474,13 +457,7 @@ class _AccountPageState extends State<AccountPage> {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
@@ -496,7 +473,7 @@ class _AccountPageState extends State<AccountPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.red.withOpacity(0.3),
+            color: Colors.red.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
