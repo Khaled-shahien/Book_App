@@ -126,9 +126,9 @@ class LoginView extends GetView<LoginController> {
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       Get.off(
-                    () => const RegisterView(),
-                    binding: RegisterBinding(),
-                  );
+                        () => const RegisterView(),
+                        binding: RegisterBinding(),
+                      );
                     },
                     child: const Text(
                       "Register",

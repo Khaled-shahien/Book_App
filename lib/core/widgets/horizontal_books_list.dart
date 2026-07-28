@@ -34,15 +34,17 @@ class HorizontalBooksList extends StatelessWidget {
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return const Center(child: CircularProgressIndicator());
                 },
                 errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Colors.grey[200],
                     child: const Center(
-                      child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                      child: Icon(
+                        Icons.broken_image,
+                        size: 50,
+                        color: Colors.grey,
+                      ),
                     ),
                   );
                 },

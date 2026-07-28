@@ -45,9 +45,7 @@ class _CustomTextFormState extends State<CustomTextForm> {
         suffixIcon: widget.isPassword
             ? IconButton(
                 icon: Icon(
-                  isPasswordHidden
-                      ? Icons.visibility_off
-                      : Icons.visibility,
+                  isPasswordHidden ? Icons.visibility_off : Icons.visibility,
                 ),
                 onPressed: () {
                   setState(() {
@@ -56,9 +54,7 @@ class _CustomTextFormState extends State<CustomTextForm> {
                 },
               )
             : null,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }

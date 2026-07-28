@@ -61,10 +61,12 @@ class ModernBottomNavBar extends GetView<NavController> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: pages,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: pages,
+        ),
+      ),
       extendBody: true,
       bottomNavigationBar: Container(
         margin: const EdgeInsets.all(20),
@@ -100,10 +102,7 @@ class ModernBottomNavBar extends GetView<NavController> {
                         children: [
                           // أيقونة مع تأثير انيميشن
                           TweenAnimationBuilder<double>(
-                            tween: Tween(
-                              begin: 0,
-                              end: isSelected ? 1 : 0,
-                            ),
+                            tween: Tween(begin: 0, end: isSelected ? 1 : 0),
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                             builder: (context, value, child) {
@@ -203,20 +202,19 @@ class FloatingBottomNavBar extends GetView<NavController> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: pages,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: pages,
+        ),
+      ),
       extendBody: true,
       bottomNavigationBar: Container(
         margin: const EdgeInsets.fromLTRB(24, 0, 24, 24),
         height: 68,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [
-              Colors.white,
-              Colors.grey.shade50,
-            ],
+            colors: [Colors.white, Colors.grey.shade50],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -359,10 +357,12 @@ class BubbleBottomNavBar extends GetView<NavController> {
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      body: Obx(() => IndexedStack(
-            index: controller.selectedIndex.value,
-            children: pages,
-          )),
+      body: Obx(
+        () => IndexedStack(
+          index: controller.selectedIndex.value,
+          children: pages,
+        ),
+      ),
       bottomNavigationBar: Container(
         height: 70,
         margin: const EdgeInsets.all(16),

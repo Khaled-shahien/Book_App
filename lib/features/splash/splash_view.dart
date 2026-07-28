@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
 
@@ -23,10 +22,7 @@ class _SplashViewState extends State<SplashView>
     );
 
     _animation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
     _animationController.forward();

@@ -17,10 +17,7 @@ class AppPages {
       page: () => SplashView(),
       binding: SplashBinding(),
     ),
-    GetPage(
-      name: Routes.welcome,
-      page: () => const WelcomePage(),
-    ),
+    GetPage(name: Routes.welcome, page: () => const WelcomePage()),
     GetPage(
       name: Routes.home,
       page: () => ModernBottomNavBar(),
@@ -38,6 +35,5 @@ class AppPages {
       page: () => RegisterView(),
       binding: RegisterBinding(),
     ),
-    
   ];
 }

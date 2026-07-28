@@ -66,7 +66,11 @@ class HomeAppBar extends StatelessWidget {
             color: Colors.white.withOpacity(0.2),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
+          child: const Icon(
+            Icons.notifications_none_rounded,
+            color: Colors.white,
+            size: 26,
+          ),
         ),
       ],
     );
@@ -92,16 +96,24 @@ class HomeAppBar extends StatelessWidget {
           children: [
             Icon(Icons.search_rounded, color: Colors.grey[400], size: 24),
             const SizedBox(width: 12),
-            Text('Search books, authors...', 
-              style: TextStyle(color: Colors.grey[400], fontSize: 15)),
+            Text(
+              'Search books, authors...',
+              style: TextStyle(color: Colors.grey[400], fontSize: 15),
+            ),
             const Spacer(),
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [Color(0xFF6C63FF), Color(0xFF8B7FFF)]),
+                gradient: const LinearGradient(
+                  colors: [Color(0xFF6C63FF), Color(0xFF8B7FFF)],
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(Icons.tune_rounded, color: Colors.white, size: 18),
+              child: const Icon(
+                Icons.tune_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
           ],
         ),

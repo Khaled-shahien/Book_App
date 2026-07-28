@@ -10,22 +10,23 @@ class RegisterController extends GetxController {
   final confirmPasswordController = TextEditingController();
   final registerFormKey = GlobalKey<FormState>();
   final isLoading = false.obs;
-  
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   void register() async {
     FocusManager.instance.primaryFocus?.unfocus();
     if (!registerFormKey.currentState!.validate()) return;
-    
+
     isLoading.value = true;
-    
+
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: emailController.text.trim(),
-        password: passwordController.text.trim(),
-      );
-      
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
+
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'name': userController.text.trim(),
         'email': emailController.text.trim(),
@@ -35,9 +36,9 @@ class RegisterController extends GetxController {
         'reviewsCount': 0,
         'createdAt': FieldValue.serverTimestamp(),
       });
-      
+
       await userCredential.user!.updateDisplayName(userController.text.trim());
-      
+
       Get.snackbar(
         "Success",
         "Registration Successful",
@@ -45,9 +46,8 @@ class RegisterController extends GetxController {
         backgroundColor: Colors.green,
         colorText: Colors.white,
       );
-      
-      Get.offAllNamed('/home'); 
-      
+
+      Get.offAllNamed('/home');
     } on FirebaseAuthException catch (e) {
       String message = 'Registration failed';
       if (e.code == 'email-already-in-use') {
