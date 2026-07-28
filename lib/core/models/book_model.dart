@@ -10,7 +10,7 @@ class BookModel {
   final double rating;
   final int ratingsCount;
   final int pageCount;
-  final bool isFree;  // Added: هل الكتاب مجاني
+  final bool isFree; // Added: هل الكتاب مجاني
 
   BookModel({
     required this.id,
@@ -33,7 +33,7 @@ class BookModel {
 
     // Check if book is free
     bool isFree = false;
-    if (saleInfo['saleability'] == 'FREE' || 
+    if (saleInfo['saleability'] == 'FREE' ||
         accessInfo['accessViewStatus'] == 'FULL_PUBLIC_DOMAIN' ||
         saleInfo['isEbook'] == true && saleInfo['listPrice'] == null) {
       isFree = true;
@@ -53,7 +53,7 @@ class BookModel {
           : 'General',
 
       // Fixed: Handle null values properly with default 0.0
-      rating: volumeInfo['averageRating'] != null 
+      rating: volumeInfo['averageRating'] != null
           ? (volumeInfo['averageRating'] as num).toDouble()
           : 0.0,
       ratingsCount: volumeInfo['ratingsCount'] ?? 0,

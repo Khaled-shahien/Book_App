@@ -14,7 +14,7 @@ class BookServices {
   Future<List<dynamic>> fetchBooks(String query, {int maxResults = 30}) async {
     try {
       log('🔍 Fetching books for query: $query');
-      
+
       final response = await _dio.get(
         'volumes',
         queryParameters: {
@@ -26,7 +26,7 @@ class BookServices {
       );
 
       log('✅ API Response Status: ${response.statusCode}');
-      
+
       if (response.statusCode == 200) {
         final items = response.data['items'] as List<dynamic>? ?? [];
         log('📚 Books found: ${items.length}');
@@ -38,10 +38,12 @@ class BookServices {
     } on DioException catch (e) {
       log('❌ DIO ERROR: ${e.type}', error: e);
       log('Message: ${e.message}');
-      
+
       if (e.type == DioExceptionType.connectionTimeout ||
           e.type == DioExceptionType.receiveTimeout) {
-        throw Exception('Connection timeout. Please check your internet connection.');
+        throw Exception(
+          'Connection timeout. Please check your internet connection.',
+        );
       } else if (e.type == DioExceptionType.connectionError) {
         throw Exception('No internet connection. Please check your network.');
       } else {
@@ -61,7 +63,7 @@ class BookServices {
     String? isbn,
   }) async {
     String query = '';
-    
+
     if (title != null && title.isNotEmpty) {
       query += 'intitle:$title+';
     }
@@ -84,4 +86,3 @@ class BookServices {
     return fetchBooks(query);
   }
 }
-

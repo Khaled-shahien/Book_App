@@ -47,7 +47,7 @@ class HorizontalBannerNetwork extends StatelessWidget {
                       child: CircularProgressIndicator(
                         value: loadingProgress.expectedTotalBytes != null
                             ? loadingProgress.cumulativeBytesLoaded /
-                                loadingProgress.expectedTotalBytes!
+                                  loadingProgress.expectedTotalBytes!
                             : null,
                       ),
                     );
@@ -56,7 +56,11 @@ class HorizontalBannerNetwork extends StatelessWidget {
                     return Container(
                       color: Colors.grey[200],
                       child: const Center(
-                        child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                        child: Icon(
+                          Icons.broken_image,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
                       ),
                     );
                   },

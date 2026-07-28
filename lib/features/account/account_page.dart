@@ -14,7 +14,7 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   User? currentUser;
   Map<String, dynamic>? userData;
   bool isLoading = true;
@@ -31,19 +31,19 @@ class _AccountPageState extends State<AccountPage> {
     });
 
     currentUser = _auth.currentUser;
-    
+
     if (currentUser != null) {
       try {
         DocumentSnapshot userDoc = await _firestore
             .collection('users')
             .doc(currentUser!.uid)
             .get();
-        
+
         if (userDoc.exists) {
           userData = userDoc.data() as Map<String, dynamic>?;
         }
       } catch (e) {
-        print('Error loading user data: $e');
+        debugPrint('Error loading user data: $e');
       }
     }
 
@@ -71,7 +71,8 @@ class _AccountPageState extends State<AccountPage> {
     if (userData?['name'] != null && userData!['name'].toString().isNotEmpty) {
       return userData!['name'];
     }
-    if (currentUser?.displayName != null && currentUser!.displayName!.isNotEmpty) {
+    if (currentUser?.displayName != null &&
+        currentUser!.displayName!.isNotEmpty) {
       return currentUser!.displayName!;
     }
     return 'User';
@@ -81,23 +82,10 @@ class _AccountPageState extends State<AccountPage> {
     return currentUser?.email ?? 'No email';
   }
 
-  String _getInitials() {
-    String name = _getDisplayName();
-    List<String> nameParts = name.split(' ');
-    if (nameParts.length >= 2) {
-      return '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
-    }
-    return name[0].toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -112,7 +100,7 @@ class _AccountPageState extends State<AccountPage> {
             backgroundColor: Colors.deepPurple,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: (){
+              onPressed: () {
                 Get.find<NavController>().changeIndex(0);
               },
             ),
@@ -120,7 +108,10 @@ class _AccountPageState extends State<AccountPage> {
               centerTitle: true,
               titlePadding: const EdgeInsets.only(bottom: 16),
               title: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(20),
@@ -377,17 +368,11 @@ class _AccountPageState extends State<AccountPage> {
       ),
       title: Text(
         title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 16,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          color: Colors.grey[600],
-          fontSize: 13,
-        ),
+        style: TextStyle(color: Colors.grey[600], fontSize: 13),
       ),
       trailing: Icon(
         Icons.arrow_forward_ios,
@@ -421,22 +406,14 @@ class _AccountPageState extends State<AccountPage> {
             label: 'Orders',
             color: Colors.blue,
           ),
-          Container(
-            height: 60,
-            width: 1,
-            color: Colors.grey[300],
-          ),
+          Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.favorite_outline,
             value: userData?['favoritesCount']?.toString() ?? '0',
             label: 'Favorites',
             color: Colors.red,
           ),
-          Container(
-            height: 60,
-            width: 1,
-            color: Colors.grey[300],
-          ),
+          Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.star_outline,
             value: userData?['reviewsCount']?.toString() ?? '0',
@@ -474,13 +451,7 @@ class _AccountPageState extends State<AccountPage> {
           ),
         ),
         const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }

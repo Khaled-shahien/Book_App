@@ -27,11 +27,13 @@ class CustomLoginButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
         ),
-        onPressed: onPressed ?? () => Get.snackbar(
-          "Info",
-          "Button pressed!",
-          snackPosition: SnackPosition.BOTTOM,
-        ),
+        onPressed:
+            onPressed ??
+            () => Get.snackbar(
+              "Info",
+              "Button pressed!",
+              snackPosition: SnackPosition.BOTTOM,
+            ),
         child: Text(
           text,
           style: TextStyle(
