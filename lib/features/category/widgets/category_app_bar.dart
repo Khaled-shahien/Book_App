@@ -12,7 +12,6 @@ class CategoryAppBar extends StatelessWidget {
 
     return SliverAppBar(
       expandedHeight: 180,
-      floating: false,
       pinned: true,
       backgroundColor: const Color(0xFF6C63FF),
       leading: IconButton(

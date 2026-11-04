@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class HomeAppBar extends StatelessWidget {
-  final Function(BuildContext) onSearch;
+  final void Function(BuildContext) onSearch;
 
   const HomeAppBar({super.key, required this.onSearch});
 

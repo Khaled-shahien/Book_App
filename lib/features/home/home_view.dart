@@ -7,10 +7,11 @@ import 'package:book_app/core/widgets/error_state_view.dart';
 import 'package:book_app/features/home/data/controllers/book_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'widgets/home_app_bar.dart';
-import 'widgets/featured_carousel.dart';
-import 'widgets/category_chips.dart';
+
 import 'widgets/books_section.dart';
+import 'widgets/category_chips.dart';
+import 'widgets/featured_carousel.dart';
+import 'widgets/home_app_bar.dart';
 
 /// Home tab. The [BookController] is registered by the home route binding.
 class HomeView extends GetView<BookController> {

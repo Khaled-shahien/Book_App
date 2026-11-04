@@ -1,10 +1,10 @@
+import 'package:book_app/core/controllers/nav_controller.dart';
 import 'package:book_app/features/account/account_page.dart';
 import 'package:book_app/features/cart/cart_page.dart';
 import 'package:book_app/features/category/categories_page.dart';
 import 'package:book_app/features/home/home_view.dart';
-import 'package:book_app/core/controllers/nav_controller.dart';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class NavItem {
   final IconData icon;
@@ -79,7 +79,6 @@ class ModernBottomNavBar extends GetView<NavController> {
               color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 25,
               offset: const Offset(0, 8),
-              spreadRadius: 0,
             ),
           ],
         ),

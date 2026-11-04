@@ -106,7 +106,6 @@ class _AccountPageState extends State<AccountPage> {
           // App Bar مع صورة البروفايل
           SliverAppBar(
             expandedHeight: 280,
-            floating: false,
             pinned: true,
             backgroundColor: Colors.deepPurple,
             leading: IconButton(
@@ -561,7 +560,7 @@ class _AccountPageState extends State<AccountPage> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            showDialog(
+            showDialog<void>(
               context: context,
               builder: (context) => AlertDialog(
                 shape: RoundedRectangleBorder(

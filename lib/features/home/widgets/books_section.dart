@@ -1,9 +1,9 @@
 // widgets/books_section.dart
 // ignore_for_file: deprecated_member_use
 
+import 'package:book_app/core/models/book_model.dart';
 import 'package:book_app/features/details/book_details_page.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/core/models/book_model.dart';
 import 'package:get/get.dart';
 
 enum BooksSectionType { horizontal, grid }
@@ -115,7 +115,7 @@ class BookCard extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(BookDetailsPage(book: book));
+            Get.to<void>(BookDetailsPage(book: book));
           },
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -210,7 +210,7 @@ class CompactBookCard extends StatelessWidget {
           Expanded(
             child: InkWell(
               onTap: () {
-                Get.to(BookDetailsPage(book: book));
+                Get.to<void>(BookDetailsPage(book: book));
               },
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(

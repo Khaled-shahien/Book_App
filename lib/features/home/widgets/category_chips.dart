@@ -1,6 +1,6 @@
 // widgets/category_chips.dart
-import 'package:flutter/material.dart';
 import 'package:book_app/features/home/data/controllers/book_controller.dart';
+import 'package:flutter/material.dart';
 
 class CategoryChips extends StatefulWidget {
   final BookController controller;

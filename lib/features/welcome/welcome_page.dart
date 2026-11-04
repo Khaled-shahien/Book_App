@@ -64,7 +64,10 @@ class WelcomePage extends StatelessWidget {
 
               CustomLoginButton(
                 onPressed: () {
-                  Get.to(() => const LoginView(), binding: LoginBinding());
+                  Get.to<void>(
+                    () => const LoginView(),
+                    binding: LoginBinding(),
+                  );
                 },
               ),
 
@@ -72,7 +75,7 @@ class WelcomePage extends StatelessWidget {
 
               TextButton(
                 onPressed: () {
-                  Get.to(
+                  Get.to<void>(
                     () => const RegisterView(),
                     binding: RegisterBinding(),
                   );

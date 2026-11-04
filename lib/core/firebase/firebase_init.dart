@@ -11,9 +11,9 @@ abstract final class FirebaseInit {
   static Future<FirebaseApp> ensureInitialized() {
     if (Firebase.apps.isNotEmpty) return Future.value(Firebase.app());
     // Share one in-flight init; reset on failure so a later call can retry.
-    return _pending ??= _init().catchError((Object e) {
+    return _pending ??= _init().catchError((Object e, StackTrace st) {
       _pending = null;
-      throw e;
+      return Future<FirebaseApp>.error(e, st);
     });
   }
 

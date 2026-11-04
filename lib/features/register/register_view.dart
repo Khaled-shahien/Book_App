@@ -1,9 +1,9 @@
+import 'package:book_app/core/utils/validators.dart';
 import 'package:book_app/core/widgets/custom_login_buttom.dart';
 import 'package:book_app/core/widgets/custom_textform.dart';
 import 'package:book_app/features/login/login_binding.dart';
 import 'package:book_app/features/login/login_view.dart';
 import 'package:book_app/features/register/register_controller.dart';
-import 'package:book_app/core/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -37,7 +37,6 @@ class RegisterView extends GetView<RegisterController> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 30),
 
@@ -125,7 +124,10 @@ class RegisterView extends GetView<RegisterController> {
                   GestureDetector(
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      Get.off(() => const LoginView(), binding: LoginBinding());
+                      Get.off<void>(
+                        () => const LoginView(),
+                        binding: LoginBinding(),
+                      );
                     },
                     child: const Text(
                       'Sign In',

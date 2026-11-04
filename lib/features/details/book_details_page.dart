@@ -1,8 +1,8 @@
 // screens/book_details_page.dart
 import 'package:book_app/core/controllers/nav_controller.dart';
+import 'package:book_app/core/models/book_model.dart';
 import 'package:book_app/features/cart/cart_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/core/models/book_model.dart';
 import 'package:get/get.dart';
 
 class BookDetailsPage extends StatefulWidget {

@@ -1,9 +1,9 @@
 // widgets/category_books_view.dart
-import 'package:book_app/features/details/book_details_page.dart';
-import 'package:flutter/material.dart';
-import 'package:book_app/features/home/data/controllers/book_controller.dart';
 import 'package:book_app/core/models/book_model.dart';
 import 'package:book_app/core/widgets/error_state_view.dart';
+import 'package:book_app/features/details/book_details_page.dart';
+import 'package:book_app/features/home/data/controllers/book_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CategoryBooksPage extends StatefulWidget {
@@ -62,7 +62,6 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
   Widget _buildAppBar(double screenWidth) {
     return SliverAppBar(
       expandedHeight: 160,
-      floating: false,
       pinned: true,
       backgroundColor: widget.categoryColor,
       leading: IconButton(
@@ -260,7 +259,7 @@ class BookGridCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(flex: 3, child: _buildCover(constraints, isSmall)),
-              Flexible(flex: 1, child: _buildInfo(isSmall)),
+              Flexible(child: _buildInfo(isSmall)),
             ],
           ),
         );
@@ -273,7 +272,7 @@ class BookGridCard extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(BookDetailsPage(book: book));
+            Get.to<void>(BookDetailsPage(book: book));
           },
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),

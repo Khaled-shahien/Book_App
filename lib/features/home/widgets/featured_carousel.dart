@@ -1,7 +1,7 @@
 // widgets/featured_carousel.dart
+import 'package:book_app/core/models/book_model.dart';
 import 'package:book_app/features/details/book_details_page.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/core/models/book_model.dart';
 import 'package:get/get.dart';
 
 class FeaturedCarousel extends StatefulWidget {
@@ -202,7 +202,7 @@ class _FeaturedCard extends StatelessWidget {
         const Spacer(),
         GestureDetector(
           onTap: () {
-            Get.to(() => BookDetailsPage(book: book));
+            Get.to<void>(() => BookDetailsPage(book: book));
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
