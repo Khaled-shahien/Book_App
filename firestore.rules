@@ -1,0 +1,55 @@
+rules_version = '2';
+
+// Locked-down rules for Book App. Deploy with:
+//   firebase deploy --only firestore:rules
+// (human action — see docs/HUMAN_ACTIONS.md). Test locally first with the
+// emulator: firebase emulators:start --only firestore
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // users/{uid}: a user may only read/write their own profile.
+    match /users/{uid} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == uid;
+      }
+
+      function validName(n) {
+        return n is string && n.size() >= 1 && n.size() <= 40;
+      }
+
+      allow read: if isOwner();
+
+      // Created once at sign-up. Counters must start at 0: the client must
+      // not be able to grant itself orders/favorites/reviews.
+      allow create: if isOwner()
+        && request.resource.data.keys().hasOnly(
+             ['name', 'email', 'phone', 'ordersCount', 'favoritesCount',
+              'reviewsCount', 'createdAt'])
+        && validName(request.resource.data.name)
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() <= 20
+        && request.resource.data.ordersCount == 0
+        && request.resource.data.favoritesCount == 0
+        && request.resource.data.reviewsCount == 0
+        && request.resource.data.createdAt == request.time;
+
+      // Profile edits may only touch name/phone; counters and identity
+      // fields are server-owned (update them from a Cloud Function).
+      allow update: if isOwner()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'phone'])
+        && validName(request.resource.data.name)
+        && request.resource.data.phone is string
+        && request.resource.data.phone.size() <= 20;
+
+      // Required for in-app account deletion.
+      allow delete: if isOwner();
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
