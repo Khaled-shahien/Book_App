@@ -1,87 +1,118 @@
-import 'package:book_app/core/models/book_model.dart';
+import 'dart:async';
+import 'dart:collection';
+
 import 'package:book_app/core/api/book_services.dart';
+import 'package:book_app/core/error/failure.dart';
+import 'package:book_app/core/models/book_model.dart';
+import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'dart:developer';
 
+/// Holds the result of a book search.
+///
+/// One instance per screen: the Home tab uses an untagged instance, each
+/// category screen uses its own tagged instance, so they never overwrite
+/// each other's results.
 class BookController extends GetxController {
-  final BookServices bookServices = BookServices();
+  BookController({
+    BookServices? bookServices,
+    this.initialQuery = 'Flutter',
+    this.maxCacheEntries = 20,
+  }) : bookServices = bookServices ?? BookServices();
 
-  var books = <BookModel>[].obs;
-  var isLoading = false.obs;
-  var errorMessage = ''.obs;
-  var currentQuery = 'Flutter'.obs;
-  var selectedCategoryIndex = 0.obs;
-  final Map<String, List<BookModel>> _cache = {};
+  final BookServices bookServices;
+  final String initialQuery;
+  final int maxCacheEntries;
+
+  final books = <BookModel>[].obs;
+  final isLoading = false.obs;
+
+  /// User-presentable error for the last failed search; empty if none.
+  final errorMessage = ''.obs;
+  final currentQuery = ''.obs;
+  final selectedCategoryIndex = 0.obs;
+
+  // Insertion-ordered map used as a small LRU cache.
+  final LinkedHashMap<String, List<BookModel>> _cache = LinkedHashMap();
+  CancelToken? _inFlight;
+  int _requestId = 0;
+
+  bool get hasError => errorMessage.value.isNotEmpty;
 
   @override
   void onInit() {
     super.onInit();
-    searchBooks('Flutter');
+    unawaited(searchBooks(initialQuery));
   }
 
-  Future<void> searchBooks(String query) async {
-    if (query.trim().isEmpty) {
+  @override
+  void onClose() {
+    _inFlight?.cancel('controller closed');
+    super.onClose();
+  }
+
+  Future<void> searchBooks(String rawQuery, {bool forceRefresh = false}) async {
+    final query = rawQuery.trim();
+    if (query.isEmpty) {
       errorMessage.value = 'Please enter a search term';
       return;
     }
 
-    isLoading.value = true;
-    errorMessage.value = '';
-    currentQuery.value = query;
+    // Supersede any in-flight request so a slow, older response can never
+    // overwrite a newer one.
+    final requestId = ++_requestId;
+    _inFlight?.cancel('superseded');
+    final token = _inFlight = CancelToken();
 
-    if (_cache.containsKey(query)) {
-      log('⚡ Cache hit for: $query');
-      books.value = _cache[query]!;
+    currentQuery.value = query;
+    errorMessage.value = '';
+
+    final cached = forceRefresh ? null : _cache.remove(query);
+    if (cached != null) {
+      _cache[query] = cached; // mark as most recently used
+      books.assignAll(cached);
       isLoading.value = false;
       return;
     }
 
+    isLoading.value = true;
     try {
-      log('🔄 Searching for: $query');
-
-      final results = await bookServices.fetchBooks(query);
-
-      if (results.isEmpty) {
-        log('📭 No books found for query: $query');
-        books.clear();
-        errorMessage.value = 'No books found for "$query"';
+      final result = await bookServices.fetchBooks(query, cancelToken: token);
+      if (requestId != _requestId || isClosed) return;
+      books.assignAll(result);
+      if (result.isEmpty) {
+        errorMessage.value = '';
       } else {
-        final bookList = results
-            .map((json) => BookModel.fromJson(json))
-            .toList();
-        books.value = bookList;
-        _cache[query] = bookList;
-        log('✅ Successfully loaded ${books.length} books');
+        _putCache(query, result);
       }
-    } catch (e) {
-      log('❌ Error in searchBooks: $e');
-      errorMessage.value = e.toString().replaceAll('Exception: ', '');
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) return;
+      if (requestId != _requestId || isClosed) return;
       books.clear();
-
-      // عرض snackbar للخطأ
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-        duration: const Duration(seconds: 3),
-      );
+      errorMessage.value = BookServices.mapDioException(e).message;
+    } on Failure catch (f) {
+      if (requestId != _requestId || isClosed) return;
+      books.clear();
+      errorMessage.value = f.message;
+    } catch (_) {
+      if (requestId != _requestId || isClosed) return;
+      books.clear();
+      errorMessage.value = const UnknownFailure().message;
     } finally {
-      isLoading.value = false;
+      if (requestId == _requestId && !isClosed) isLoading.value = false;
     }
   }
 
-  // Method لتحديث البحث
-  void refreshSearch() {
-    searchBooks(currentQuery.value);
+  Future<void> refreshSearch() {
+    final query = currentQuery.value.isEmpty
+        ? initialQuery
+        : currentQuery.value;
+    return searchBooks(query, forceRefresh: true);
   }
 
-  // Method للبحث حسب الفئة
-  void searchByCategory(String category) {
-    searchBooks('subject:$category');
-  }
-
-  // Method للبحث حسب المؤلف
-  void searchByAuthor(String author) {
-    searchBooks('inauthor:$author');
+  void _putCache(String query, List<BookModel> result) {
+    _cache[query] = result;
+    while (_cache.length > maxCacheEntries) {
+      _cache.remove(_cache.keys.first);
+    }
   }
 }

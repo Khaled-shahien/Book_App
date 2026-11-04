@@ -9,7 +9,7 @@ class CustomLoginButton extends StatelessWidget {
 
   const CustomLoginButton({
     super.key,
-    this.text = "Get Started",
+    this.text = 'Get Started',
     this.backgroundColor = const Color(0xFF121212),
     this.textColor = const Color(0xFFF2F2F2),
     this.onPressed,
@@ -30,8 +30,8 @@ class CustomLoginButton extends StatelessWidget {
         onPressed:
             onPressed ??
             () => Get.snackbar(
-              "Info",
-              "Button pressed!",
+              'Info',
+              'Button pressed!',
               snackPosition: SnackPosition.BOTTOM,
             ),
         child: Text(

@@ -1,88 +1,123 @@
-// ================= Book Services =================
+import 'dart:async';
+
+import 'package:book_app/core/config/app_config.dart';
+import 'package:book_app/core/error/failure.dart';
+import 'package:book_app/core/models/book_model.dart';
+import 'package:book_app/core/utils/app_logger.dart';
 import 'package:dio/dio.dart';
-import 'dart:developer';
 
+/// Remote data source for the Google Books API.
+///
+/// * HTTPS base URL from [AppConfig] (no hardcoded keys).
+/// * Timeouts on connect/send/receive.
+/// * Retries idempotent GETs with exponential backoff on transient errors.
+/// * Maps every error to a typed [Failure]; never leaks raw exceptions.
 class BookServices {
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: 'https://www.googleapis.com/books/v1/',
-      connectTimeout: const Duration(seconds: 15),
-      receiveTimeout: const Duration(seconds: 15),
-    ),
-  );
+  BookServices({
+    Dio? dio,
+    this.maxRetries = 2,
+    this.retryBaseDelay = const Duration(milliseconds: 400),
+  }) : _dio = dio ?? _createDio();
 
-  Future<List<dynamic>> fetchBooks(String query, {int maxResults = 30}) async {
-    try {
-      log('🔍 Fetching books for query: $query');
+  final Dio _dio;
+  final int maxRetries;
+  final Duration retryBaseDelay;
 
-      final response = await _dio.get(
-        'volumes',
-        queryParameters: {
-          'q': query,
-          'maxResults': maxResults,
-          'orderBy': 'relevance',
-          'printType': 'books',
-        },
-      );
+  static Dio _createDio() {
+    return Dio(
+      BaseOptions(
+        baseUrl: AppConfig.booksApiBaseUrl,
+        connectTimeout: const Duration(seconds: 15),
+        sendTimeout: const Duration(seconds: 15),
+        receiveTimeout: const Duration(seconds: 15),
+      ),
+    );
+  }
 
-      log('✅ API Response Status: ${response.statusCode}');
+  /// Fetches up to [maxResults] books for [query].
+  ///
+  /// Throws a [Failure] on error. Pass a [cancelToken] to abort the request
+  /// when the caller is disposed.
+  Future<List<BookModel>> fetchBooks(
+    String query, {
+    int maxResults = 30,
+    CancelToken? cancelToken,
+  }) async {
+    final params = <String, Object>{
+      'q': query,
+      'maxResults': maxResults.clamp(1, 40),
+      'orderBy': 'relevance',
+      'printType': 'books',
+      if (AppConfig.booksApiKey.isNotEmpty) 'key': AppConfig.booksApiKey,
+    };
 
-      if (response.statusCode == 200) {
-        final items = response.data['items'] as List<dynamic>? ?? [];
-        log('📚 Books found: ${items.length}');
-        return items;
-      } else {
-        log('❌ API Error: ${response.statusCode}');
-        throw Exception('API Error: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      log('❌ DIO ERROR: ${e.type}', error: e);
-      log('Message: ${e.message}');
-
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.receiveTimeout) {
-        throw Exception(
-          'Connection timeout. Please check your internet connection.',
+    var attempt = 0;
+    while (true) {
+      try {
+        AppLogger.debug('GET volumes q="$query" (attempt ${attempt + 1})');
+        final response = await _dio.get<Object?>(
+          'volumes',
+          queryParameters: params,
+          cancelToken: cancelToken,
         );
-      } else if (e.type == DioExceptionType.connectionError) {
-        throw Exception('No internet connection. Please check your network.');
-      } else {
-        throw Exception('Failed to load books. Please try again.');
+        return parseVolumes(response.data);
+      } on DioException catch (e, st) {
+        if (e.type == DioExceptionType.cancel) rethrow;
+        final failure = mapDioException(e);
+        final transient =
+            failure is NetworkFailure ||
+            failure is TimeoutFailure ||
+            (failure is ServerFailure && (e.response?.statusCode ?? 0) >= 500);
+        if (transient && attempt < maxRetries) {
+          attempt++;
+          await Future<void>.delayed(retryBaseDelay * (1 << (attempt - 1)));
+          continue;
+        }
+        AppLogger.reportError(e, st, reason: 'fetchBooks failed');
+        throw failure;
+      } on Failure {
+        rethrow;
+      } catch (e, st) {
+        AppLogger.reportError(e, st, reason: 'fetchBooks unexpected');
+        throw const UnknownFailure();
       }
-    } catch (e) {
-      log('❌ UNKNOWN ERROR', error: e);
-      throw Exception('An unexpected error occurred: ${e.toString()}');
     }
   }
 
-  // Method للبحث المتقدم
-  Future<List<dynamic>> searchBooksAdvanced({
-    String? title,
-    String? author,
-    String? subject,
-    String? isbn,
-  }) async {
-    String query = '';
+  /// Parses a `volumes` response body defensively; unexpected shapes yield
+  /// an empty list instead of a crash.
+  static List<BookModel> parseVolumes(Object? body) {
+    if (body is! Map<String, dynamic>) {
+      if (body == null) return const [];
+      throw const ServerFailure('Unexpected response from the server.');
+    }
+    final items = body['items'];
+    if (items is! List) return const [];
+    return items
+        .whereType<Map<String, dynamic>>()
+        .map(BookModel.fromJson)
+        .where((book) => book.id.isNotEmpty)
+        .toList(growable: false);
+  }
 
-    if (title != null && title.isNotEmpty) {
-      query += 'intitle:$title+';
+  static Failure mapDioException(DioException e) {
+    switch (e.type) {
+      case DioExceptionType.connectionTimeout:
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+      case DioExceptionType.transformTimeout:
+        return const TimeoutFailure();
+      case DioExceptionType.connectionError:
+        return const NetworkFailure();
+      case DioExceptionType.badResponse:
+        final code = e.response?.statusCode ?? 0;
+        if (code == 429) return const RateLimitFailure();
+        return const ServerFailure();
+      case DioExceptionType.badCertificate:
+        return const NetworkFailure('Secure connection failed.');
+      case DioExceptionType.cancel:
+      case DioExceptionType.unknown:
+        return const UnknownFailure();
     }
-    if (author != null && author.isNotEmpty) {
-      query += 'inauthor:$author+';
-    }
-    if (subject != null && subject.isNotEmpty) {
-      query += 'subject:$subject+';
-    }
-    if (isbn != null && isbn.isNotEmpty) {
-      query += 'isbn:$isbn+';
-    }
-
-    if (query.isEmpty) {
-      query = 'flutter'; // default query
-    } else {
-      query = query.substring(0, query.length - 1); // remove last '+'
-    }
-
-    return fetchBooks(query);
   }
 }

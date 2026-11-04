@@ -1,9 +1,9 @@
 // widgets/books_section.dart
 // ignore_for_file: deprecated_member_use
 
+import 'package:book_app/core/models/book_model.dart';
 import 'package:book_app/features/details/book_details_page.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/core/models/book_model.dart';
 import 'package:get/get.dart';
 
 enum BooksSectionType { horizontal, grid }
@@ -94,7 +94,7 @@ class BookCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -115,13 +115,14 @@ class BookCard extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(BookDetailsPage(book: book));
+            Get.to<void>(BookDetailsPage(book: book));
           },
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: book.thumbnail.isNotEmpty
                 ? Image.network(
                     book.thumbnail,
+                    cacheWidth: 450,
                     width: 150,
                     height: 180,
                     fit: BoxFit.cover,
@@ -197,7 +198,7 @@ class CompactBookCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -209,7 +210,7 @@ class CompactBookCard extends StatelessWidget {
           Expanded(
             child: InkWell(
               onTap: () {
-                Get.to(BookDetailsPage(book: book));
+                Get.to<void>(BookDetailsPage(book: book));
               },
               child: ClipRRect(
                 borderRadius: const BorderRadius.vertical(
@@ -218,6 +219,7 @@ class CompactBookCard extends StatelessWidget {
                 child: book.thumbnail.isNotEmpty
                     ? Image.network(
                         book.thumbnail,
+                        cacheWidth: 450,
                         width: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (c, e, s) => _placeholder(),

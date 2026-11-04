@@ -12,7 +12,6 @@ class CategoryAppBar extends StatelessWidget {
 
     return SliverAppBar(
       expandedHeight: 180,
-      floating: false,
       pinned: true,
       backgroundColor: const Color(0xFF6C63FF),
       leading: IconButton(
@@ -47,7 +46,7 @@ class CategoryAppBar extends StatelessWidget {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -59,7 +58,7 @@ class CategoryAppBar extends StatelessWidget {
               width: 150,
               height: 150,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
+                color: Colors.white.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
             ),

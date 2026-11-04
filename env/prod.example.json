@@ -1,0 +1,5 @@
+{
+  "APP_ENV": "prod",
+  "BOOKS_API_BASE_URL": "https://www.googleapis.com/books/v1/",
+  "BOOKS_API_KEY": ""
+}

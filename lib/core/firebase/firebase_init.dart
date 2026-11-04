@@ -1,29 +1,27 @@
 import 'package:firebase_core/firebase_core.dart';
 
-class FirebaseInit {
-  static bool _started = false;
+/// Idempotent Firebase initialization.
+///
+/// Uses the native config files (google-services.json /
+/// GoogleService-Info.plist), which are git-ignored and provided per
+/// environment — see docs/HUMAN_ACTIONS.md.
+abstract final class FirebaseInit {
+  static Future<FirebaseApp>? _pending;
 
-  static Future<FirebaseApp> ensureInitialized() async {
-    if (_started) {
-      return Firebase.app();
-    }
-    _started = true;
+  static Future<FirebaseApp> ensureInitialized() {
+    if (Firebase.apps.isNotEmpty) return Future.value(Firebase.app());
+    // Share one in-flight init; reset on failure so a later call can retry.
+    return _pending ??= _init().catchError((Object e, StackTrace st) {
+      _pending = null;
+      return Future<FirebaseApp>.error(e, st);
+    });
+  }
 
-    // If already initialized on native side or previous Dart run, avoid duplicate.
-    if (Firebase.apps.isNotEmpty) {
-      return Firebase.app();
-    }
-
+  static Future<FirebaseApp> _init() async {
     try {
-      // Check if firebase_options.dart exists and use it, otherwise initialize without options
-      // This will use the default configuration from native platforms
       return await Firebase.initializeApp();
     } on FirebaseException catch (e) {
-      // Ignore duplicate-app, rethrow anything else.
-      final msg = e.message ?? '';
-      if (e.code == 'duplicate-app' || msg.contains('already exists')) {
-        return Firebase.app();
-      }
+      if (e.code == 'duplicate-app') return Firebase.app();
       rethrow;
     }
   }

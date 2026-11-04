@@ -1,0 +1,117 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_CHANNEL: stable
+
+jobs:
+  quality:
+    name: Format, analyze, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Format check
+        run: dart format --output=none --set-exit-if-changed lib test
+
+      - name: Analyze (fails on any warning or info)
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Test with coverage
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage/lcov.info
+          fail_ci_if_error: false
+
+  build-android:
+    name: Android App Bundle
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: '17'
+
+      # google-services.json is never committed. Provide it as a base64
+      # repository secret (GOOGLE_SERVICES_JSON_B64); see docs/HUMAN_ACTIONS.md.
+      - name: Provide Firebase config
+        env:
+          GOOGLE_SERVICES_JSON_B64: ${{ secrets.GOOGLE_SERVICES_JSON_B64 }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON_B64" ]; then
+            echo "::warning::GOOGLE_SERVICES_JSON_B64 secret not set; skipping Android build."
+            echo "SKIP_ANDROID=1" >> "$GITHUB_ENV"
+          else
+            echo "$GOOGLE_SERVICES_JSON_B64" | base64 --decode > android/app/google-services.json
+          fi
+
+      - name: Build obfuscated App Bundle
+        if: env.SKIP_ANDROID != '1'
+        run: |
+          cp env/prod.example.json env/prod.json
+          flutter build appbundle --release \
+            --obfuscate --split-debug-info=build/symbols \
+            --dart-define-from-file=env/prod.json
+
+      - name: Upload bundle and symbols
+        if: env.SKIP_ANDROID != '1'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-${{ github.sha }}
+          path: |
+            build/app/outputs/bundle/release/*.aab
+            build/symbols/
+          retention-days: 14
+
+  build-ios:
+    name: iOS (no codesign)
+    runs-on: macos-latest
+    needs: quality
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS without codesigning
+        run: |
+          cp env/prod.example.json env/prod.json
+          flutter build ios --release --no-codesign \
+            --obfuscate --split-debug-info=build/symbols \
+            --dart-define-from-file=env/prod.json

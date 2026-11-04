@@ -1,8 +1,8 @@
 // screens/book_details_page.dart
 import 'package:book_app/core/controllers/nav_controller.dart';
-import 'package:book_app/features/cart/cart_page.dart';
-import 'package:flutter/material.dart';
 import 'package:book_app/core/models/book_model.dart';
+import 'package:book_app/features/cart/cart_manager.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class BookDetailsPage extends StatefulWidget {
@@ -20,74 +20,88 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _checkIfInCart();
+    _isInCart = CartManager.isInCart(widget.book);
+    // Stay in sync if the cart changes elsewhere (e.g. Undo in a snackbar).
+    CartManager.addListener(_onCartChanged);
   }
 
-  void _checkIfInCart() {
-    setState(() {
-      _isInCart = CartManager.isInCart(widget.book);
-    });
+  @override
+  void dispose() {
+    CartManager.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  void _onCartChanged() {
+    if (!mounted) return;
+    setState(() => _isInCart = CartManager.isInCart(widget.book));
   }
 
   void _addToCart() {
     CartManager.addToCart(widget.book);
-    setState(() {
-      _isInCart = true;
-    });
+    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text('${widget.book.title} added to cart')),
-          ],
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('${widget.book.title} added to cart')),
+            ],
+          ),
+          backgroundColor: Colors.green.shade400,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          action: SnackBarAction(
+            label: 'View Cart',
+            textColor: Colors.white,
+            onPressed: () {
+              // Return to the root shell (works from Home or Category stacks).
+              Get.until((route) => route.isFirst);
+              if (Get.isRegistered<NavController>()) {
+                Get.find<NavController>().changeIndex(2);
+              }
+            },
+          ),
         ),
-        backgroundColor: Colors.green.shade400,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: SnackBarAction(
-          label: 'View Cart',
-          textColor: Colors.white,
-          onPressed: () {
-            Navigator.pop(context);
-            Get.find<NavController>().changeIndex(2);
-          },
-        ),
-      ),
-    );
+      );
   }
 
   void _removeFromCart() {
     CartManager.removeFromCart(widget.book);
-    setState(() {
-      _isInCart = false;
-    });
+    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.remove_circle, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text('${widget.book.title} removed from cart')),
-          ],
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.remove_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('${widget.book.title} removed from cart')),
+            ],
+          ),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          action: SnackBarAction(
+            label: 'Undo',
+            textColor: Colors.white,
+            // The page may be gone by the time Undo is tapped; only touch
+            // the cart, never this State.
+            onPressed: () => CartManager.addToCart(widget.book),
+          ),
         ),
-        backgroundColor: Colors.red.shade400,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: SnackBarAction(
-          label: 'Undo',
-          textColor: Colors.white,
-          onPressed: () {
-            _addToCart();
-          },
-        ),
-      ),
-    );
+      );
   }
 
   @override
@@ -131,10 +145,6 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
       ),
       actions: [
         IconButton(
-          icon: const Icon(Icons.share, color: Colors.white),
-          onPressed: () {},
-        ),
-        IconButton(
           icon: Icon(
             _isInCart ? Icons.favorite : Icons.favorite_border,
             color: Colors.white,
@@ -157,7 +167,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                 gradient: LinearGradient(
                   colors: [
                     const Color(0xFF6C63FF),
-                    const Color(0xFF8B7FFF).withOpacity(0.9),
+                    const Color(0xFF8B7FFF).withValues(alpha: 0.9),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -171,7 +181,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                 width: 200,
                 height: 200,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -180,7 +190,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 80),
                 child: Hero(
-                  tag: 'book_${widget.book.title}',
+                  tag: 'book_${widget.book.id}',
                   child: _buildCover(),
                 ),
               ),
@@ -199,7 +209,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -210,6 +220,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
         child: widget.book.thumbnail.isNotEmpty
             ? Image.network(
                 widget.book.thumbnail,
+                cacheWidth: 540,
                 fit: BoxFit.cover,
                 errorBuilder: (c, e, s) => _placeholderCover(),
               )
@@ -223,8 +234,8 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6C63FF).withOpacity(0.3),
-            const Color(0xFF8B7FFF).withOpacity(0.3),
+            const Color(0xFF6C63FF).withValues(alpha: 0.3),
+            const Color(0xFF8B7FFF).withValues(alpha: 0.3),
           ],
         ),
       ),
@@ -346,7 +357,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -381,7 +392,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               ),
 
             if (widget.book.ratingsCount > 0) ...[
-              Icon(Icons.rate_review, color: const Color(0xFF6C63FF), size: 22),
+              const Icon(Icons.rate_review, color: Color(0xFF6C63FF), size: 22),
               const SizedBox(width: 8),
               Text(
                 '${widget.book.ratingsCount} Reviews',
@@ -420,7 +431,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -471,7 +482,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
+                  color: Colors.grey.withValues(alpha: 0.1),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -520,7 +531,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
                 elevation: 5,
                 shadowColor:
                     (_isInCart ? Colors.red.shade400 : const Color(0xFF6C63FF))
-                        .withOpacity(0.4),
+                        .withValues(alpha: 0.4),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

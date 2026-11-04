@@ -1,7 +1,7 @@
 // widgets/featured_carousel.dart
+import 'package:book_app/core/models/book_model.dart';
 import 'package:book_app/features/details/book_details_page.dart';
 import 'package:flutter/material.dart';
-import 'package:book_app/core/models/book_model.dart';
 import 'package:get/get.dart';
 
 class FeaturedCarousel extends StatefulWidget {
@@ -104,8 +104,8 @@ class _FeaturedCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFF6C63FF).withOpacity(0.9),
-            Color(0xFF8B7FFF).withOpacity(0.8),
+            const Color(0xFF6C63FF).withValues(alpha: 0.9),
+            const Color(0xFF8B7FFF).withValues(alpha: 0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -113,7 +113,9 @@ class _FeaturedCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Color(0xFF6C63FF).withOpacity(isActive ? 0.4 : 0.2),
+            color: const Color(
+              0xFF6C63FF,
+            ).withValues(alpha: isActive ? 0.4 : 0.2),
             blurRadius: isActive ? 20 : 10,
             offset: const Offset(0, 8),
           ),
@@ -148,7 +150,7 @@ class _FeaturedCard extends StatelessWidget {
         width: 120,
         height: 120,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
       ),
@@ -163,7 +165,7 @@ class _FeaturedCard extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -192,12 +194,15 @@ class _FeaturedCard extends StatelessWidget {
           book.authors,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.8),
+            fontSize: 13,
+          ),
         ),
         const Spacer(),
         GestureDetector(
           onTap: () {
-            Get.to(() => BookDetailsPage(book: book));
+            Get.to<void>(() => BookDetailsPage(book: book));
           },
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -225,6 +230,7 @@ class _FeaturedCard extends StatelessWidget {
       child: book.thumbnail.isNotEmpty
           ? Image.network(
               book.thumbnail,
+              cacheWidth: 360,
               height: 160,
               fit: BoxFit.cover,
               errorBuilder: (c, e, s) => _placeholder(),
@@ -236,7 +242,7 @@ class _FeaturedCard extends StatelessWidget {
   Widget _placeholder() => Container(
     height: 160,
     decoration: BoxDecoration(
-      color: Colors.white.withOpacity(0.2),
+      color: Colors.white.withValues(alpha: 0.2),
       borderRadius: BorderRadius.circular(12),
     ),
     child: const Icon(Icons.book, size: 40, color: Colors.white),

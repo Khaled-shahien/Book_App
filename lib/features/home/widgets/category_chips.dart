@@ -1,6 +1,6 @@
 // widgets/category_chips.dart
-import 'package:flutter/material.dart';
 import 'package:book_app/features/home/data/controllers/book_controller.dart';
+import 'package:flutter/material.dart';
 
 class CategoryChips extends StatefulWidget {
   final BookController controller;
@@ -52,7 +52,10 @@ class _CategoryChipsState extends State<CategoryChips> {
         decoration: BoxDecoration(
           gradient: isSelected
               ? LinearGradient(
-                  colors: [_colors[index], _colors[index].withOpacity(0.7)],
+                  colors: [
+                    _colors[index],
+                    _colors[index].withValues(alpha: 0.7),
+                  ],
                 )
               : null,
           color: isSelected ? null : Colors.white,
@@ -60,8 +63,8 @@ class _CategoryChipsState extends State<CategoryChips> {
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? _colors[index].withOpacity(0.3)
-                  : Colors.black.withOpacity(0.05),
+                  ? _colors[index].withValues(alpha: 0.3)
+                  : Colors.black.withValues(alpha: 0.05),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),

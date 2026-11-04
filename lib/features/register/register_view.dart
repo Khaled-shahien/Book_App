@@ -1,3 +1,4 @@
+import 'package:book_app/core/utils/validators.dart';
 import 'package:book_app/core/widgets/custom_login_buttom.dart';
 import 'package:book_app/core/widgets/custom_textform.dart';
 import 'package:book_app/features/login/login_binding.dart';
@@ -17,7 +18,7 @@ class RegisterView extends GetView<RegisterController> {
         backgroundColor: Colors.transparent,
         centerTitle: true,
         title: const Text(
-          "Register",
+          'Register',
           style: TextStyle(
             color: Colors.black,
             fontSize: 32,
@@ -36,12 +37,11 @@ class RegisterView extends GetView<RegisterController> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       const SizedBox(height: 30),
 
                       const Text(
-                        "Please fill your details to signup.",
+                        'Please fill your details to signup.',
                         style: TextStyle(
                           fontSize: 16,
                           color: Color(0xFF252525),
@@ -52,68 +52,49 @@ class RegisterView extends GetView<RegisterController> {
 
                       CustomTextForm(
                         controller: controller.userController,
-                        labelText: "Username",
+                        labelText: 'Username',
                         icon: Icons.verified_user_outlined,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your username';
-                          }
-                          return null;
-                        },
+                        validator: Validators.username,
+                        autofillHints: const [AutofillHints.username],
+                        maxLength: 40,
                       ),
 
                       const SizedBox(height: 30),
 
                       CustomTextForm(
                         controller: controller.emailController,
-                        labelText: "Email",
+                        labelText: 'Email',
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your email';
-                          }
-                          if (!GetUtils.isEmail(value!)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
+                        validator: Validators.email,
+                        autofillHints: const [AutofillHints.email],
+                        maxLength: 254,
                       ),
 
                       const SizedBox(height: 30),
 
                       CustomTextForm(
                         controller: controller.passwordController,
-                        labelText: "Password",
+                        labelText: 'Password',
                         icon: Icons.lock,
                         isPassword: true,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your password';
-                          }
-                          if (value!.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
+                        validator: Validators.newPassword,
+                        autofillHints: const [AutofillHints.newPassword],
                       ),
 
                       const SizedBox(height: 30),
 
                       CustomTextForm(
                         controller: controller.confirmPasswordController,
-                        labelText: "Confirm Password",
+                        labelText: 'Confirm Password',
                         icon: Icons.lock,
                         isPassword: true,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != controller.passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
+                        validator: (value) => Validators.confirmPassword(
+                          value,
+                          controller.passwordController.text,
+                        ),
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => controller.register(),
                       ),
 
                       const SizedBox(height: 40),
@@ -121,8 +102,8 @@ class RegisterView extends GetView<RegisterController> {
                       Obx(
                         () => CustomLoginButton(
                           text: controller.isLoading.value
-                              ? "Loading..."
-                              : "Sign Up",
+                              ? 'Loading...'
+                              : 'Sign Up',
                           onPressed: controller.isLoading.value
                               ? null
                               : controller.register,
@@ -137,16 +118,19 @@ class RegisterView extends GetView<RegisterController> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    "Already a member? ",
+                    'Already a member? ',
                     style: TextStyle(fontSize: 14),
                   ),
                   GestureDetector(
                     onTap: () {
                       FocusManager.instance.primaryFocus?.unfocus();
-                      Get.off(() => const LoginView(), binding: LoginBinding());
+                      Get.off<void>(
+                        () => const LoginView(),
+                        binding: LoginBinding(),
+                      );
                     },
                     child: const Text(
-                      "Sign In",
+                      'Sign In',
                       style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),

@@ -93,24 +93,58 @@ Firebase client configuration should be restricted to the intended applications
 and APIs. Never commit service-account keys, signing credentials, or other server
 secrets.
 
-## Quality checks
+## Configuration, testing and release
+
+### Environments (dev / staging / prod)
+Config is injected at compile time with `--dart-define-from-file`. Copy a template once (the copies are git-ignored):
+
+```bash
+cp env/dev.example.json env/dev.json
+flutter run --dart-define-from-file=env/dev.json
+```
+
+Keys: `APP_ENV`, `BOOKS_API_BASE_URL`, `BOOKS_API_KEY` (optional). See `lib/core/config/app_config.dart`.
+
+### Firebase
+Firebase configuration files are intentionally ignored and must not be committed. Generate them locally with the FlutterFire CLI:
+
+```bash
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+Security rules live in `firestore.rules`; deploy with `firebase deploy --only firestore:rules`.
+
+### Testing
 
 ```bash
 dart format --output=none --set-exit-if-changed lib test
-flutter analyze --no-pub
-flutter test --no-pub
+flutter analyze --fatal-infos
+flutter test --coverage
 ```
 
-The test suite contains four focused `BookModel.fromJson` tests covering complete
-payloads, missing optional fields, image-link fallbacks, and non-string
-identifiers. GitHub Actions runs formatting, analysis, and tests for pull
-requests to `main`.
+Unit tests cover the API client (with a scripted HTTP adapter), models, validators, cart money math and `BookController`. Widget tests cover splash routing, Home loading/error/empty/success, and the form widgets.
+
+### Release
+
+```bash
+# Android: requires android/key.properties (see android/key.properties.example)
+flutter build appbundle --release --obfuscate --split-debug-info=build/symbols \
+  --dart-define-from-file=env/prod.json
+
+# iOS
+flutter build ipa --release --obfuscate --split-debug-info=build/symbols \
+  --dart-define-from-file=env/prod.json
+```
+
+Keep `build/symbols` to symbolicate crash reports. The remaining manual release steps are in [docs/HUMAN_ACTIONS.md](docs/HUMAN_ACTIONS.md); the audit and decisions are in [docs/](docs/).
 
 ## Current limitations
 
 - Cart state is in memory and is not restored after the app restarts
 - Checkout displays a planned-feature message and does not process payments
 - Firebase emulator and end-to-end tests are not configured
+- Localization/RTL and dark mode are not yet supported (see docs/PROGRESS.md)
 
 ## Maintainer
 

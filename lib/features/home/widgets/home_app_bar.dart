@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 class HomeAppBar extends StatelessWidget {
-  final Function(BuildContext) onSearch;
+  final void Function(BuildContext) onSearch;
 
   const HomeAppBar({super.key, required this.onSearch});
 
@@ -44,7 +44,7 @@ class HomeAppBar extends StatelessWidget {
             Text(
               'Hello Reader 👋',
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
               ),
@@ -63,7 +63,7 @@ class HomeAppBar extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.2),
+            color: Colors.white.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Icon(
@@ -86,7 +86,7 @@ class HomeAppBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),

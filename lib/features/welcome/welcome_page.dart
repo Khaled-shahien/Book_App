@@ -34,7 +34,7 @@ class WelcomePage extends StatelessWidget {
                     right: 0,
                     child: Center(
                       child: Image.asset(
-                        "assets/images/splash_screen.png",
+                        'assets/images/splash_screen.png',
                         width: 140,
                         height: 140,
                       ),
@@ -45,14 +45,14 @@ class WelcomePage extends StatelessWidget {
 
               const SizedBox(height: 100),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
-                  "Read more and stress less with our online book shopping app. "
-                  "Shop from anywhere you are and discover titles that you love. "
-                  "Happy reading!",
+                  'Read more and stress less with our online book shopping app. '
+                  'Shop from anywhere you are and discover titles that you love. '
+                  'Happy reading!',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     color: Colors.black,
                     height: 1.5,
@@ -64,7 +64,10 @@ class WelcomePage extends StatelessWidget {
 
               CustomLoginButton(
                 onPressed: () {
-                  Get.to(() => const LoginView(), binding: LoginBinding());
+                  Get.to<void>(
+                    () => const LoginView(),
+                    binding: LoginBinding(),
+                  );
                 },
               ),
 
@@ -72,13 +75,13 @@ class WelcomePage extends StatelessWidget {
 
               TextButton(
                 onPressed: () {
-                  Get.to(
+                  Get.to<void>(
                     () => const RegisterView(),
                     binding: RegisterBinding(),
                   );
                 },
                 child: const Text(
-                  "Register",
+                  'Register',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,

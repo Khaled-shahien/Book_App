@@ -1,5 +1,5 @@
 name: book_app
-description: "A Flutter book discovery app powered by the Google Books API."
+description: "Book discovery and shopping app built with Flutter, GetX and Firebase."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -65,9 +65,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
+  # assets/screenshots/ is README-only and intentionally NOT bundled.
   assets:
-    - assets/images/ 
-    - assets/screenshots/
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -80,10 +80,9 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts:
-    - family: San Serif
-      fonts:
-        - asset: assets/fonts/OpenSans-VariableFont_wdth,wght.ttf
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
   #       - asset: fonts/Schyler-Italic.ttf
   #         style: italic
   #   - family: Trajan Pro

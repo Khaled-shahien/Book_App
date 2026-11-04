@@ -1,8 +1,9 @@
 // widgets/category_books_view.dart
-import 'package:book_app/features/details/book_details_page.dart';
-import 'package:flutter/material.dart';
-import 'package:book_app/features/home/data/controllers/book_controller.dart';
 import 'package:book_app/core/models/book_model.dart';
+import 'package:book_app/core/widgets/error_state_view.dart';
+import 'package:book_app/features/details/book_details_page.dart';
+import 'package:book_app/features/home/data/controllers/book_controller.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class CategoryBooksPage extends StatefulWidget {
@@ -22,12 +23,26 @@ class CategoryBooksPage extends StatefulWidget {
 }
 
 class _CategoryBooksPageState extends State<CategoryBooksPage> {
-  final BookController controller = Get.find<BookController>();
+  // Each category screen owns its own controller so it never overwrites the
+  // Home tab's results (previously it reused Home's shared instance).
+  // Unique per page instance: the same category can be stacked twice.
+  late final String _tag =
+      'category:${widget.categoryName}:${identityHashCode(this)}';
+  late final BookController controller = Get.put(
+    BookController(initialQuery: widget.categoryName),
+    tag: _tag,
+  );
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => controller.searchBooks(widget.categoryName));
+    controller; // create the controller, which starts the search
+  }
+
+  @override
+  void dispose() {
+    Get.delete<BookController>(tag: _tag);
+    super.dispose();
   }
 
   @override
@@ -49,7 +64,6 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
   Widget _buildAppBar(double screenWidth) {
     return SliverAppBar(
       expandedHeight: 160,
-      floating: false,
       pinned: true,
       backgroundColor: widget.categoryColor,
       leading: IconButton(
@@ -68,7 +82,10 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [widget.categoryColor, widget.categoryColor.withOpacity(0.7)],
+          colors: [
+            widget.categoryColor,
+            widget.categoryColor.withValues(alpha: 0.7),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -82,7 +99,7 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
               width: 200,
               height: 200,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -122,6 +139,15 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
 
   Widget _buildContent(double screenWidth, int crossAxisCount) {
     if (controller.isLoading.value) return _buildLoading();
+    if (controller.hasError) {
+      return SliverFillRemaining(
+        child: ErrorStateView(
+          message: controller.errorMessage.value,
+          color: widget.categoryColor,
+          onRetry: controller.refreshSearch,
+        ),
+      );
+    }
     if (controller.books.isEmpty) return _buildEmpty();
     return _buildBooksGrid(screenWidth, crossAxisCount);
   }
@@ -156,13 +182,13 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
             Container(
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: widget.categoryColor.withOpacity(0.1),
+                color: widget.categoryColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.search_off_rounded,
                 size: 80,
-                color: widget.categoryColor.withOpacity(0.5),
+                color: widget.categoryColor.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 24),
@@ -225,7 +251,7 @@ class BookGridCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 3),
               ),
@@ -235,7 +261,7 @@ class BookGridCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(flex: 3, child: _buildCover(constraints, isSmall)),
-              Flexible(flex: 1, child: _buildInfo(isSmall)),
+              Flexible(child: _buildInfo(isSmall)),
             ],
           ),
         );
@@ -248,13 +274,14 @@ class BookGridCard extends StatelessWidget {
       children: [
         InkWell(
           onTap: () {
-            Get.to(BookDetailsPage(book: book));
+            Get.to<void>(BookDetailsPage(book: book));
           },
           child: ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: book.thumbnail.isNotEmpty
                 ? Image.network(
                     book.thumbnail,
+                    cacheWidth: 450,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (c, e, s) => _placeholder(),
@@ -279,7 +306,7 @@ class BookGridCard extends StatelessWidget {
           vertical: isSmall ? 3 : 4,
         ),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.9),
+          color: color.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(

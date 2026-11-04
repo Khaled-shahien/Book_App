@@ -1,8 +1,9 @@
 // categories_page.dart
 import 'package:flutter/material.dart';
+
 import 'widgets/category_app_bar.dart';
-import 'widgets/category_card.dart';
 import 'widgets/category_books_view.dart';
+import 'widgets/category_card.dart';
 
 class CategoriesPage extends StatelessWidget {
   const CategoriesPage({super.key});
@@ -74,7 +75,7 @@ class CategoriesPage extends StatelessWidget {
   ) {
     Navigator.push(
       context,
-      MaterialPageRoute(
+      MaterialPageRoute<void>(
         builder: (context) => CategoryBooksPage(
           categoryName: category['name'] as String,
           categoryIcon: category['icon'] as String,

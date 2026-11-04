@@ -5,10 +5,7 @@ class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: const Color(0xFF6C63FF),
-        brightness: Brightness.light,
-      ),
+      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF6C63FF)),
       textTheme: GoogleFonts.interTextTheme(
         const TextTheme(bodyMedium: TextStyle(color: Colors.grey)),
       ),
@@ -50,7 +47,7 @@ class AppTheme {
           vertical: 16,
         ),
       ),
-      cardTheme: CardThemeData(elevation: 2),
+      cardTheme: const CardThemeData(elevation: 2),
     );
   }
 
@@ -102,7 +99,7 @@ class AppTheme {
           vertical: 16,
         ),
       ),
-      cardTheme: CardThemeData(elevation: 4),
+      cardTheme: const CardThemeData(elevation: 4),
     );
   }
 }
