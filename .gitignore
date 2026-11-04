@@ -7,7 +7,7 @@
 .pub/
 build/
 *.dart_snapshot
-pubspec.lock
+# pubspec.lock is committed on purpose: this is an application.
 
 # Generated code
 *.g.dart
@@ -96,3 +96,11 @@ ehthumbs.db
 *.swp
 coverage/
 lcov.info
+
+# Android signing (NEVER COMMIT)
+android/key.properties
+**/upload-keystore*
+
+# Local --dart-define-from-file configs (only *.example.json are committed)
+env/*.json
+!env/*.example.json
