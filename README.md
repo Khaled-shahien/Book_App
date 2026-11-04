@@ -95,8 +95,8 @@ lib/
 ## Getting Started
 
 ### Prerequisites
-- Flutter SDK >= 3.0.0
-- Dart SDK >= 3.0.0
+- Flutter SDK (stable, Dart >= 3.10)
+- Java 17 for Android builds
 - A Firebase project if you plan to use authentication or Firestore features
 
 ### Installation
@@ -119,21 +119,49 @@ flutter pub get
 flutter run
 ```
 
-### Environment Setup
-Copy the example environment file and fill in values only on your local machine:
+### Environments (dev / staging / prod)
+Config is injected at compile time with `--dart-define-from-file`. Copy a template once (the copies are git-ignored):
 
 ```bash
-cp .env.example .env
+cp env/dev.example.json env/dev.json
+flutter run --dart-define-from-file=env/dev.json
 ```
 
-Firebase configuration files are intentionally ignored and must not be committed. Generate them locally with the FlutterFire CLI when needed:
+Keys: `APP_ENV`, `BOOKS_API_BASE_URL`, `BOOKS_API_KEY` (optional). See `lib/core/config/app_config.dart`.
+
+### Firebase
+Firebase configuration files are intentionally ignored and must not be committed. Generate them locally with the FlutterFire CLI:
 
 ```bash
 dart pub global activate flutterfire_cli
 flutterfire configure
 ```
 
-This can create files such as `android/app/google-services.json`, `GoogleService-Info.plist`, and `lib/firebase_options.dart`; keep them local or provide them through secure CI secrets.
+Security rules live in `firestore.rules`; deploy with `firebase deploy --only firestore:rules`.
+
+### Testing
+
+```bash
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze --fatal-infos
+flutter test --coverage
+```
+
+Unit tests cover the API client (with a scripted HTTP adapter), models, validators, cart money math and `BookController`. Widget tests cover splash routing, Home loading/error/empty/success, and the form widgets.
+
+### Release
+
+```bash
+# Android: requires android/key.properties (see android/key.properties.example)
+flutter build appbundle --release --obfuscate --split-debug-info=build/symbols \
+  --dart-define-from-file=env/prod.json
+
+# iOS
+flutter build ipa --release --obfuscate --split-debug-info=build/symbols \
+  --dart-define-from-file=env/prod.json
+```
+
+Keep `build/symbols` to symbolicate crash reports. The remaining manual release steps are in [docs/HUMAN_ACTIONS.md](docs/HUMAN_ACTIONS.md); the audit and decisions are in [docs/](docs/).
 
 ## Download
 [![Download APK](https://img.shields.io/badge/Download-APK-green?style=for-the-badge&logo=android)](../../releases/latest)
