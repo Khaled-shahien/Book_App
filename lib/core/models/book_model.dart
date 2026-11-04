@@ -43,7 +43,7 @@ class BookModel {
       id: _readString(json['id']),
       title: _readString(volumeInfo['title'], fallback: 'No Title'),
       authors: _readAuthors(volumeInfo['authors']),
-      thumbnail: _readString(imageLinks['thumbnail']),
+      thumbnail: _secureUrl(_readString(imageLinks['thumbnail'])),
       description: _readString(
         volumeInfo['description'],
         fallback: 'No Description',
@@ -59,6 +59,10 @@ class BookModel {
       isFree: isFree,
     );
   }
+
+  /// Google Books returns `http://` image links; cleartext is disabled.
+  static String _secureUrl(String url) =>
+      url.startsWith('http://') ? 'https://${url.substring(7)}' : url;
 
   static Map<String, dynamic> _readMap(Object? value) {
     if (value is Map<String, dynamic>) {
