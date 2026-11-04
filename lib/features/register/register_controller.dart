@@ -52,7 +52,9 @@ class RegisterController extends GetxController {
         await user.updateDisplayName(name);
         await _firestore.collection('users').doc(user.uid).set({
           'name': name,
-          'email': email,
+          // Auth stores emails lowercased; the security rule compares
+          // against the token email, so write exactly that value.
+          'email': user.email ?? email.toLowerCase(),
           'phone': '',
           'ordersCount': 0,
           'favoritesCount': 0,

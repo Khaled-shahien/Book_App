@@ -25,7 +25,9 @@ class CategoryBooksPage extends StatefulWidget {
 class _CategoryBooksPageState extends State<CategoryBooksPage> {
   // Each category screen owns its own controller so it never overwrites the
   // Home tab's results (previously it reused Home's shared instance).
-  late final String _tag = 'category:${widget.categoryName}';
+  // Unique per page instance: the same category can be stacked twice.
+  late final String _tag =
+      'category:${widget.categoryName}:${identityHashCode(this)}';
   late final BookController controller = Get.put(
     BookController(initialQuery: widget.categoryName),
     tag: _tag,
