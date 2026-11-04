@@ -1,7 +1,10 @@
+import 'package:book_app/core/auth/auth_error_mapper.dart';
+import 'package:book_app/core/auth/session_service.dart';
 import 'package:book_app/core/controllers/nav_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:book_app/core/utils/app_logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AccountPage extends StatefulWidget {
@@ -12,12 +15,10 @@ class AccountPage extends StatefulWidget {
 }
 
 class _AccountPageState extends State<AccountPage> {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
   User? currentUser;
   Map<String, dynamic>? userData;
   bool isLoading = true;
+  bool _loggingOut = false;
 
   @override
   void initState() {
@@ -26,54 +27,48 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   Future<void> _loadUserData() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    currentUser = _auth.currentUser;
-
-    if (currentUser != null) {
+    currentUser = FirebaseAuth.instance.currentUser;
+    final user = currentUser;
+    if (user != null) {
       try {
-        final DocumentSnapshot userDoc = await _firestore
+        final doc = await FirebaseFirestore.instance
             .collection('users')
-            .doc(currentUser!.uid)
+            .doc(user.uid)
             .get();
-
-        if (userDoc.exists) {
-          userData = userDoc.data() as Map<String, dynamic>?;
-        }
-      } catch (e) {
-        print('Error loading user data: $e');
+        userData = doc.data();
+      } catch (e, st) {
+        AppLogger.reportError(e, st, reason: 'load user profile failed');
       }
     }
-
-    setState(() {
-      isLoading = false;
-    });
+    if (!mounted) return;
+    setState(() => isLoading = false);
   }
 
   Future<void> _logout() async {
+    if (_loggingOut) return;
+    _loggingOut = true;
     try {
-      await _auth.signOut();
-      Get.offAllNamed('/login');
-    } catch (e) {
+      await SessionService.signOut();
+    } catch (e, st) {
+      AppLogger.reportError(e, st, reason: 'logout failed');
       Get.snackbar(
         'Error',
-        'Error logging out: $e',
+        'Could not log out. Please try again.',
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.red.shade700,
         colorText: Colors.white,
       );
+    } finally {
+      _loggingOut = false;
     }
   }
 
   String _getDisplayName() {
-    if (userData?['name'] != null && userData!['name'].toString().isNotEmpty) {
-      return userData!['name'].toString();
-    }
-    if (currentUser?.displayName != null &&
-        currentUser!.displayName!.isNotEmpty) {
-      return currentUser!.displayName!;
+    final name = userData?['name'];
+    if (name is String && name.trim().isNotEmpty) return name.trim();
+    final displayName = currentUser?.displayName;
+    if (displayName != null && displayName.trim().isNotEmpty) {
+      return displayName.trim();
     }
     return 'User';
   }
@@ -83,12 +78,19 @@ class _AccountPageState extends State<AccountPage> {
   }
 
   String _getInitials() {
-    final String name = _getDisplayName();
-    final List<String> nameParts = name.split(' ');
-    if (nameParts.length >= 2) {
-      return '${nameParts[0][0]}${nameParts[1][0]}'.toUpperCase();
-    }
-    return name[0].toUpperCase();
+    final parts = _getDisplayName()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (parts.isEmpty) return '?';
+    final first = parts.first.characters.first;
+    final second = parts.length > 1 ? parts[1].characters.first : '';
+    return '$first$second'.toUpperCase();
+  }
+
+  String _stat(String key) {
+    final value = userData?[key];
+    return value is num ? value.toInt().toString() : '0';
   }
 
   @override
@@ -169,11 +171,17 @@ class _AccountPageState extends State<AccountPage> {
                               ),
                             ],
                           ),
-                          child: const CircleAvatar(
+                          child: CircleAvatar(
                             radius: 55,
                             backgroundColor: Colors.white,
-                            backgroundImage: NetworkImage(
-                              'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+                            child: Text(
+                              _getInitials(),
+                              semanticsLabel: _getDisplayName(),
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepPurple,
+                              ),
                             ),
                           ),
                         ),
@@ -305,7 +313,7 @@ class _AccountPageState extends State<AccountPage> {
             subtitle: 'Update your information',
             color: Colors.blue,
             onTap: () {
-              // TODO: Navigate to edit profile page
+              _comingSoon();
             },
           ),
           const Divider(height: 1),
@@ -316,7 +324,7 @@ class _AccountPageState extends State<AccountPage> {
             subtitle: 'Manage notifications',
             color: Colors.orange,
             onTap: () {
-              // TODO: Navigate to notifications page
+              _comingSoon();
             },
           ),
           const Divider(height: 1),
@@ -327,7 +335,7 @@ class _AccountPageState extends State<AccountPage> {
             subtitle: 'Password and privacy',
             color: Colors.green,
             onTap: () {
-              // TODO: Navigate to security page
+              _comingSoon();
             },
           ),
           const Divider(height: 1),
@@ -338,7 +346,7 @@ class _AccountPageState extends State<AccountPage> {
             subtitle: 'English',
             color: Colors.purple,
             onTap: () {
-              // TODO: Navigate to language page
+              _comingSoon();
             },
           ),
           const Divider(height: 1),
@@ -349,12 +357,78 @@ class _AccountPageState extends State<AccountPage> {
             subtitle: 'Get help',
             color: Colors.teal,
             onTap: () {
-              // TODO: Navigate to help page
+              _comingSoon();
             },
+          ),
+          const Divider(height: 1),
+          _buildSettingsTile(
+            context,
+            icon: Icons.delete_forever_outlined,
+            title: 'Delete Account',
+            subtitle: 'Permanently delete your account and data',
+            color: Colors.red,
+            onTap: _confirmDeleteAccount,
           ),
         ],
       ),
     );
+  }
+
+  void _comingSoon() {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        const SnackBar(
+          content: Text('Coming soon'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete account?'),
+        content: const Text(
+          'This permanently deletes your account and profile data. '
+          'This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await AccountDeletionService.deleteCurrentUser();
+    } on FirebaseAuthException catch (e) {
+      Get.snackbar(
+        'Could not delete account',
+        e.code == 'requires-recent-login'
+            ? 'For security, please log out, sign in again, then retry.'
+            : AuthErrorMapper.message(e.code),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    } catch (e, st) {
+      AppLogger.reportError(e, st, reason: 'delete account failed');
+      Get.snackbar(
+        'Could not delete account',
+        'Something went wrong. Please try again.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
 
   Widget _buildSettingsTile(
@@ -411,21 +485,21 @@ class _AccountPageState extends State<AccountPage> {
         children: [
           _buildStatItem(
             icon: Icons.shopping_bag_outlined,
-            value: userData?['ordersCount']?.toString() ?? '0',
+            value: _stat('ordersCount'),
             label: 'Orders',
             color: Colors.blue,
           ),
           Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.favorite_outline,
-            value: userData?['favoritesCount']?.toString() ?? '0',
+            value: _stat('favoritesCount'),
             label: 'Favorites',
             color: Colors.red,
           ),
           Container(height: 60, width: 1, color: Colors.grey[300]),
           _buildStatItem(
             icon: Icons.star_outline,
-            value: userData?['reviewsCount']?.toString() ?? '0',
+            value: _stat('reviewsCount'),
             label: 'Reviews',
             color: Colors.amber,
           ),

@@ -2,6 +2,7 @@ import 'package:book_app/core/widgets/custom_login_buttom.dart';
 import 'package:book_app/core/widgets/custom_textform.dart';
 import 'package:book_app/features/login/login_controller.dart';
 import 'package:book_app/features/register/register_binding.dart';
+import 'package:book_app/core/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../register/register_view.dart';
@@ -56,15 +57,9 @@ class LoginView extends GetView<LoginController> {
                         labelText: 'Email',
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your email';
-                          }
-                          if (!GetUtils.isEmail(value!)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
+                        validator: Validators.email,
+                        autofillHints: const [AutofillHints.email],
+                        maxLength: 254,
                       ),
 
                       const SizedBox(height: 30),
@@ -74,15 +69,10 @@ class LoginView extends GetView<LoginController> {
                         labelText: 'Password',
                         icon: Icons.lock,
                         isPassword: true,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your password';
-                          }
-                          if (value!.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
+                        validator: Validators.loginPassword,
+                        textInputAction: TextInputAction.done,
+                        autofillHints: const [AutofillHints.password],
+                        onFieldSubmitted: (_) => controller.login(),
                       ),
 
                       const SizedBox(height: 40),

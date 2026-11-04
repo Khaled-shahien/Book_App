@@ -3,6 +3,7 @@ import 'package:book_app/core/widgets/custom_textform.dart';
 import 'package:book_app/features/login/login_binding.dart';
 import 'package:book_app/features/login/login_view.dart';
 import 'package:book_app/features/register/register_controller.dart';
+import 'package:book_app/core/utils/validators.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -54,12 +55,9 @@ class RegisterView extends GetView<RegisterController> {
                         controller: controller.userController,
                         labelText: 'Username',
                         icon: Icons.verified_user_outlined,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your username';
-                          }
-                          return null;
-                        },
+                        validator: Validators.username,
+                        autofillHints: const [AutofillHints.username],
+                        maxLength: 40,
                       ),
 
                       const SizedBox(height: 30),
@@ -69,15 +67,9 @@ class RegisterView extends GetView<RegisterController> {
                         labelText: 'Email',
                         icon: Icons.email,
                         keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your email';
-                          }
-                          if (!GetUtils.isEmail(value!)) {
-                            return 'Please enter a valid email';
-                          }
-                          return null;
-                        },
+                        validator: Validators.email,
+                        autofillHints: const [AutofillHints.email],
+                        maxLength: 254,
                       ),
 
                       const SizedBox(height: 30),
@@ -87,15 +79,8 @@ class RegisterView extends GetView<RegisterController> {
                         labelText: 'Password',
                         icon: Icons.lock,
                         isPassword: true,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please enter your password';
-                          }
-                          if (value!.length < 6) {
-                            return 'Password must be at least 6 characters';
-                          }
-                          return null;
-                        },
+                        validator: Validators.newPassword,
+                        autofillHints: const [AutofillHints.newPassword],
                       ),
 
                       const SizedBox(height: 30),
@@ -105,15 +90,12 @@ class RegisterView extends GetView<RegisterController> {
                         labelText: 'Confirm Password',
                         icon: Icons.lock,
                         isPassword: true,
-                        validator: (value) {
-                          if (value?.isEmpty ?? true) {
-                            return 'Please confirm your password';
-                          }
-                          if (value != controller.passwordController.text) {
-                            return 'Passwords do not match';
-                          }
-                          return null;
-                        },
+                        validator: (value) => Validators.confirmPassword(
+                          value,
+                          controller.passwordController.text,
+                        ),
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (_) => controller.register(),
                       ),
 
                       const SizedBox(height: 40),
