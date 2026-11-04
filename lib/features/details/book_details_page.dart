@@ -1,6 +1,6 @@
 // screens/book_details_page.dart
 import 'package:book_app/core/controllers/nav_controller.dart';
-import 'package:book_app/features/cart/cart_page.dart';
+import 'package:book_app/features/cart/cart_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app/core/models/book_model.dart';
 import 'package:get/get.dart';
@@ -20,74 +20,88 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
   @override
   void initState() {
     super.initState();
-    _checkIfInCart();
+    _isInCart = CartManager.isInCart(widget.book);
+    // Stay in sync if the cart changes elsewhere (e.g. Undo in a snackbar).
+    CartManager.addListener(_onCartChanged);
   }
 
-  void _checkIfInCart() {
-    setState(() {
-      _isInCart = CartManager.isInCart(widget.book);
-    });
+  @override
+  void dispose() {
+    CartManager.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  void _onCartChanged() {
+    if (!mounted) return;
+    setState(() => _isInCart = CartManager.isInCart(widget.book));
   }
 
   void _addToCart() {
     CartManager.addToCart(widget.book);
-    setState(() {
-      _isInCart = true;
-    });
+    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text('${widget.book.title} added to cart')),
-          ],
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('${widget.book.title} added to cart')),
+            ],
+          ),
+          backgroundColor: Colors.green.shade400,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          action: SnackBarAction(
+            label: 'View Cart',
+            textColor: Colors.white,
+            onPressed: () {
+              // Return to the root shell (works from Home or Category stacks).
+              Get.until((route) => route.isFirst);
+              if (Get.isRegistered<NavController>()) {
+                Get.find<NavController>().changeIndex(2);
+              }
+            },
+          ),
         ),
-        backgroundColor: Colors.green.shade400,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: SnackBarAction(
-          label: 'View Cart',
-          textColor: Colors.white,
-          onPressed: () {
-            Navigator.pop(context);
-            Get.find<NavController>().changeIndex(2);
-          },
-        ),
-      ),
-    );
+      );
   }
 
   void _removeFromCart() {
     CartManager.removeFromCart(widget.book);
-    setState(() {
-      _isInCart = false;
-    });
+    if (!mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.remove_circle, color: Colors.white),
-            const SizedBox(width: 12),
-            Expanded(child: Text('${widget.book.title} removed from cart')),
-          ],
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.remove_circle, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('${widget.book.title} removed from cart')),
+            ],
+          ),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          action: SnackBarAction(
+            label: 'Undo',
+            textColor: Colors.white,
+            // The page may be gone by the time Undo is tapped; only touch
+            // the cart, never this State.
+            onPressed: () => CartManager.addToCart(widget.book),
+          ),
         ),
-        backgroundColor: Colors.red.shade400,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: SnackBarAction(
-          label: 'Undo',
-          textColor: Colors.white,
-          onPressed: () {
-            _addToCart();
-          },
-        ),
-      ),
-    );
+      );
   }
 
   @override
@@ -130,10 +144,6 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
         onPressed: () => Navigator.pop(context),
       ),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.share, color: Colors.white),
-          onPressed: () {},
-        ),
         IconButton(
           icon: Icon(
             _isInCart ? Icons.favorite : Icons.favorite_border,
@@ -180,7 +190,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
               child: Padding(
                 padding: const EdgeInsets.only(top: 80),
                 child: Hero(
-                  tag: 'book_${widget.book.title}',
+                  tag: 'book_${widget.book.id}',
                   child: _buildCover(),
                 ),
               ),
@@ -210,6 +220,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
         child: widget.book.thumbnail.isNotEmpty
             ? Image.network(
                 widget.book.thumbnail,
+                cacheWidth: 540,
                 fit: BoxFit.cover,
                 errorBuilder: (c, e, s) => _placeholderCover(),
               )

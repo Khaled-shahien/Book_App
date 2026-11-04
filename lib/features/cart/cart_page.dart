@@ -2,6 +2,8 @@
 import 'package:book_app/core/controllers/nav_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app/core/models/book_model.dart';
+import 'package:book_app/core/widgets/book_cover_image.dart';
+import 'package:book_app/features/cart/cart_manager.dart';
 import 'package:get/get.dart';
 
 class CartPage extends StatefulWidget {
@@ -49,39 +51,59 @@ class _CartPageState extends State<CartPage>
 
   void _removeFromCart(BookModel book) {
     CartManager.removeFromCart(book);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${book.title} removed from cart'),
-        backgroundColor: Colors.red.shade400,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text('${book.title} removed from cart'),
+          backgroundColor: Colors.red.shade400,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          action: SnackBarAction(
+            label: 'Undo',
+            textColor: Colors.white,
+            onPressed: () => CartManager.addToCart(book),
+          ),
+        ),
+      );
   }
 
   void _clearCart() {
-    showDialog(
+    // Capture the page-level messenger: the dialog's own context is
+    // unmounted once the dialog is popped.
+    final messenger = ScaffoldMessenger.of(context);
+    showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text('Clear Cart?'),
         content: const Text('Are you sure you want to remove all items?'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
             onPressed: () {
+              final removed = CartManager.cartItems;
               CartManager.clearCart();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: const Text('Cart cleared'),
-                  backgroundColor: Colors.green.shade400,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
+              Navigator.pop(dialogContext);
+              messenger
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: const Text('Cart cleared'),
+                    backgroundColor: Colors.green.shade600,
+                    behavior: SnackBarBehavior.floating,
+                    action: SnackBarAction(
+                      label: 'Undo',
+                      textColor: Colors.white,
+                      onPressed: () => removed.forEach(CartManager.addToCart),
+                    ),
+                  ),
+                );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -278,9 +300,9 @@ class _CartPageState extends State<CartPage>
   }
 
   Widget _buildSummary(List<BookModel> items) {
-    final total = items.fold<double>(
-      0.0,
-      (sum, book) => sum + (book.isFree ? 0.0 : 9.99),
+    final totalCents = items.fold<int>(
+      0,
+      (sum, book) => sum + priceCentsFor(book),
     );
     final freeCount = items.where((book) => book.isFree).length;
     final paidCount = items.length - freeCount;
@@ -326,7 +348,7 @@ class _CartPageState extends State<CartPage>
                   ),
                 ),
                 Text(
-                  total == 0 ? 'Free' : '\$${total.toStringAsFixed(2)}',
+                  totalCents == 0 ? 'Free' : formatCents(totalCents),
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -471,13 +493,11 @@ class _CartItemCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: book.thumbnail.isNotEmpty
-            ? Image.network(
-                book.thumbnail,
-                fit: BoxFit.cover,
-                errorBuilder: (c, e, s) => _placeholderThumbnail(),
-              )
-            : _placeholderThumbnail(),
+        child: BookCoverImage(
+          url: book.thumbnail,
+          width: 80,
+          placeholder: _placeholderThumbnail(),
+        ),
       ),
     );
   }
@@ -539,7 +559,7 @@ class _CartItemCard extends StatelessWidget {
             ),
           ),
           child: Text(
-            book.isFree ? 'Free' : '\$9.99',
+            book.isFree ? 'Free' : formatCents(priceCentsFor(book)),
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.bold,
@@ -561,48 +581,5 @@ class _CartItemCard extends StatelessWidget {
       iconSize: 26,
       tooltip: 'Remove',
     );
-  }
-}
-
-// CartManager with ChangeNotifier pattern
-class CartManager {
-  static final List<BookModel> _cartItems = [];
-  static final List<VoidCallback> _listeners = [];
-
-  static List<BookModel> get cartItems => List.unmodifiable(_cartItems);
-
-  static void addListener(VoidCallback listener) {
-    _listeners.add(listener);
-  }
-
-  static void removeListener(VoidCallback listener) {
-    _listeners.remove(listener);
-  }
-
-  static void _notifyListeners() {
-    for (var listener in _listeners) {
-      listener();
-    }
-  }
-
-  static void addToCart(BookModel book) {
-    if (!_cartItems.any((item) => item.id == book.id)) {
-      _cartItems.add(book);
-      _notifyListeners();
-    }
-  }
-
-  static void removeFromCart(BookModel book) {
-    _cartItems.removeWhere((item) => item.id == book.id);
-    _notifyListeners();
-  }
-
-  static void clearCart() {
-    _cartItems.clear();
-    _notifyListeners();
-  }
-
-  static bool isInCart(BookModel book) {
-    return _cartItems.any((item) => item.id == book.id);
   }
 }
