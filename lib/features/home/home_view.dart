@@ -1,6 +1,9 @@
-// home_view.dart
-// ignore_for_file: deprecated_member_use
+import 'dart:async';
 
+// home_view.dart
+
+import 'package:book_app/core/models/book_model.dart';
+import 'package:book_app/core/widgets/error_state_view.dart';
 import 'package:book_app/features/home/data/controllers/book_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -9,54 +12,83 @@ import 'widgets/featured_carousel.dart';
 import 'widgets/category_chips.dart';
 import 'widgets/books_section.dart';
 
-class HomeView extends StatelessWidget {
-  HomeView({super.key});
-
-  final BookController controller = Get.put(BookController());
+/// Home tab. The [BookController] is registered by the home route binding.
+class HomeView extends GetView<BookController> {
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
       body: SafeArea(
-        child: Obx(
-          () => CustomScrollView(
-            slivers: [
-              HomeAppBar(onSearch: _showSearchDialog),
-              if (controller.isLoading.value)
-                _buildLoading()
-              else if (controller.books.isEmpty)
-                _buildEmpty()
-              else
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 20),
-                      FeaturedCarousel(
-                        books: controller.books.take(5).toList(),
-                      ),
-                      const SizedBox(height: 28),
-                      CategoryChips(controller: controller),
-                      const SizedBox(height: 24),
-                      BooksSection(
-                        title: '📚 Popular Books',
-                        books: controller.books,
-                        type: BooksSectionType.horizontal,
-                      ),
-                      const SizedBox(height: 24),
-                      BooksSection(
-                        title: '✨ New Releases',
-                        books: controller.books,
-                        type: BooksSectionType.grid,
-                        maxItems: 10,
-                      ),
-                      const SizedBox(height: 100),
-                    ],
+        child: RefreshIndicator(
+          onRefresh: controller.refreshSearch,
+          child: Obx(() {
+            final books = controller.books;
+            final loading = controller.isLoading.value;
+            return CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                HomeAppBar(onSearch: _showSearchDialog),
+                // Keep the category chips visible in every state so the user
+                // can always switch category, even after an error.
+                if (!(loading && books.isEmpty))
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: CategoryChips(controller: controller),
+                    ),
                   ),
-                ),
-            ],
-          ),
+                if (loading && books.isNotEmpty)
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(20, 12, 20, 0),
+                      child: LinearProgressIndicator(minHeight: 2),
+                    ),
+                  ),
+                if (loading && books.isEmpty)
+                  _buildLoading()
+                else if (controller.hasError && books.isEmpty)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: ErrorStateView(
+                      message: controller.errorMessage.value,
+                      onRetry: controller.refreshSearch,
+                    ),
+                  )
+                else if (books.isEmpty)
+                  _buildEmpty()
+                else
+                  _buildContent(books),
+              ],
+            );
+          }),
         ),
+      ),
+    );
+  }
+
+  Widget _buildContent(List<BookModel> books) {
+    return SliverToBoxAdapter(
+      child: Column(
+        children: [
+          const SizedBox(height: 24),
+          FeaturedCarousel(books: books.take(5).toList()),
+          const SizedBox(height: 24),
+          BooksSection(
+            title: '📚 Popular Books',
+            books: books,
+            type: BooksSectionType.horizontal,
+          ),
+          const SizedBox(height: 24),
+          BooksSection(
+            title: '✨ New Releases',
+            books: books,
+            type: BooksSectionType.grid,
+            maxItems: 10,
+          ),
+          const SizedBox(height: 100),
+        ],
       ),
     );
   }
@@ -91,13 +123,13 @@ class HomeView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF).withOpacity(0.1),
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.menu_book_rounded,
                 size: 80,
-                color: const Color(0xFF6C63FF).withOpacity(0.5),
+                color: const Color(0xFF6C63FF).withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 24),
@@ -122,25 +154,37 @@ class HomeView extends StatelessWidget {
 
   void _showSearchDialog(BuildContext context) {
     final searchController = TextEditingController();
-    showDialog(
+    showDialog<void>(
       context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDialogHeader(),
-              const SizedBox(height: 20),
-              _buildSearchField(searchController),
-              const SizedBox(height: 20),
-              _buildDialogActions(context, searchController),
-            ],
+      builder: (dialogContext) {
+        void submit() {
+          final query = searchController.text.trim();
+          if (query.isEmpty) return;
+          controller.selectedCategoryIndex.value = -1;
+          unawaited(controller.searchBooks(query));
+          Navigator.pop(dialogContext);
+        }
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-        ),
-      ),
-    );
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildDialogHeader(),
+                const SizedBox(height: 20),
+                _buildSearchField(searchController, submit),
+                const SizedBox(height: 20),
+                _buildDialogActions(dialogContext, submit),
+              ],
+            ),
+          ),
+        );
+      },
+    ).whenComplete(searchController.dispose);
   }
 
   Widget _buildDialogHeader() {
@@ -165,11 +209,18 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchField(TextEditingController controller) {
+  Widget _buildSearchField(
+    TextEditingController controller,
+    VoidCallback onSubmit,
+  ) {
     return TextField(
       controller: controller,
+      textInputAction: TextInputAction.search,
+      onSubmitted: (_) => onSubmit(),
+      maxLength: 100,
       decoration: InputDecoration(
         hintText: 'Enter book name or author...',
+        counterText: '',
         prefixIcon: const Icon(Icons.edit_rounded),
         filled: true,
         fillColor: Colors.grey[50],
@@ -182,10 +233,7 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buildDialogActions(
-    BuildContext context,
-    TextEditingController searchController,
-  ) {
+  Widget _buildDialogActions(BuildContext context, VoidCallback onSubmit) {
     return Row(
       children: [
         Expanded(
@@ -203,12 +251,7 @@ class HomeView extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: ElevatedButton(
-            onPressed: () {
-              if (searchController.text.isNotEmpty) {
-                controller.searchBooks(searchController.text);
-                Navigator.pop(context);
-              }
-            },
+            onPressed: onSubmit,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               backgroundColor: const Color(0xFF6C63FF),

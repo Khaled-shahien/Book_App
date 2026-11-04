@@ -230,6 +230,7 @@ class _FeaturedCard extends StatelessWidget {
       child: book.thumbnail.isNotEmpty
           ? Image.network(
               book.thumbnail,
+              cacheWidth: 360,
               height: 160,
               fit: BoxFit.cover,
               errorBuilder: (c, e, s) => _placeholder(),

@@ -26,7 +26,7 @@ class ModernBottomNavBar extends GetView<NavController> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> pages = [
-      HomeView(),
+      const HomeView(),
       const CategoriesPage(),
       const CartPage(),
       const AccountPage(),

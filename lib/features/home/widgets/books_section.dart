@@ -94,7 +94,7 @@ class BookCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -122,6 +122,7 @@ class BookCard extends StatelessWidget {
             child: book.thumbnail.isNotEmpty
                 ? Image.network(
                     book.thumbnail,
+                    cacheWidth: 450,
                     width: 150,
                     height: 180,
                     fit: BoxFit.cover,
@@ -197,7 +198,7 @@ class CompactBookCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -218,6 +219,7 @@ class CompactBookCard extends StatelessWidget {
                 child: book.thumbnail.isNotEmpty
                     ? Image.network(
                         book.thumbnail,
+                        cacheWidth: 450,
                         width: double.infinity,
                         fit: BoxFit.cover,
                         errorBuilder: (c, e, s) => _placeholder(),

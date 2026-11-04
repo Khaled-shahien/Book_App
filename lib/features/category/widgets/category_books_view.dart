@@ -3,6 +3,7 @@ import 'package:book_app/features/details/book_details_page.dart';
 import 'package:flutter/material.dart';
 import 'package:book_app/features/home/data/controllers/book_controller.dart';
 import 'package:book_app/core/models/book_model.dart';
+import 'package:book_app/core/widgets/error_state_view.dart';
 import 'package:get/get.dart';
 
 class CategoryBooksPage extends StatefulWidget {
@@ -22,12 +23,24 @@ class CategoryBooksPage extends StatefulWidget {
 }
 
 class _CategoryBooksPageState extends State<CategoryBooksPage> {
-  final BookController controller = Get.find<BookController>();
+  // Each category screen owns its own controller so it never overwrites the
+  // Home tab's results (previously it reused Home's shared instance).
+  late final String _tag = 'category:${widget.categoryName}';
+  late final BookController controller = Get.put(
+    BookController(initialQuery: widget.categoryName),
+    tag: _tag,
+  );
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => controller.searchBooks(widget.categoryName));
+    controller; // create the controller, which starts the search
+  }
+
+  @override
+  void dispose() {
+    Get.delete<BookController>(tag: _tag);
+    super.dispose();
   }
 
   @override
@@ -125,6 +138,15 @@ class _CategoryBooksPageState extends State<CategoryBooksPage> {
 
   Widget _buildContent(double screenWidth, int crossAxisCount) {
     if (controller.isLoading.value) return _buildLoading();
+    if (controller.hasError) {
+      return SliverFillRemaining(
+        child: ErrorStateView(
+          message: controller.errorMessage.value,
+          color: widget.categoryColor,
+          onRetry: controller.refreshSearch,
+        ),
+      );
+    }
     if (controller.books.isEmpty) return _buildEmpty();
     return _buildBooksGrid(screenWidth, crossAxisCount);
   }
@@ -258,6 +280,7 @@ class BookGridCard extends StatelessWidget {
             child: book.thumbnail.isNotEmpty
                 ? Image.network(
                     book.thumbnail,
+                    cacheWidth: 450,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (c, e, s) => _placeholder(),
